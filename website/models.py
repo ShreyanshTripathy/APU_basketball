@@ -21,7 +21,7 @@ class Event(db.Model):
     start_date = db.Column(db.DateTime, default=func.now())
     end_date = db.Column(db.DateTime, default=func.now())
     admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'), nullable=False)
-    matches = db.relationship('Match', backref='event', lazy=True)
+    # matches = db.relationship('Match', backref='event', lazy=True)
     
 class Core_members(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -29,7 +29,7 @@ class Core_members(db.Model):
     Number = db.Column(db.String(15), nullable=False)  # Use String for flexible phone formats
     email_id = db.Column(db.String(100), nullable=False)
     picture = db.Column(db.String(255), nullable=True)  # Store the path to the uploaded image
-    admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'), nullable=False) 
+    admin_id = db.Column(db.Integer, db.ForeignKey('admin.id')) 
     
 class Team(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -37,16 +37,13 @@ class Team(db.Model):
     team_name = db.Column(db.String(100), nullable=False)
     captain = db.Column(db.Boolean, default=False)
 
-<<<<<<< HEAD
     # Relationship for team A (matches where this team is in team_a_id)
-    team_a_matches = db.relationship('Match', foreign_keys='Match.team_a_id', back_populates='team_a')
+    # team_a_matches = db.relationship('Match', foreign_keys='Match.team_a_id', back_populates='team_a')
 
     # Relationship for team B (matches where this team is in team_b_id)
-    team_b_matches = db.relationship('Match', foreign_keys='Match.team_b_id', back_populates='team_b')
+    # team_b_matches = db.relationship('Match', foreign_keys='Match.team_b_id', back_populates='team_b')
     admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'), nullable=False) 
 
-=======
->>>>>>> 3719b3d81093853cd794739f61999b6ef6a4da2f
 
 class Match(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -59,5 +56,5 @@ class Match(db.Model):
     event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
 
     # Explicitly define the reverse relationships using back_populates
-    team_a = db.relationship('Team', foreign_keys=[team_a_id], back_populates='team_a_matches')
-    team_b = db.relationship('Team', foreign_keys=[team_b_id], back_populates='team_b_matches')
+    # team_a = db.relationship('Team', foreign_keys=[team_a_id], back_populates='team_a_matches')
+    # team_b = db.relationship('Team', foreign_keys=[team_b_id], back_populates='team_b_matches')

@@ -14,16 +14,9 @@ def login():
         user_name = request.form.get('user_name')
         password = request.form.get('password')
         user = Admin.query.filter_by(user_name=user_name).first()
-<<<<<<< HEAD
-
-        if user and check_password_hash(user.password, password):
-            flash('Logged in successfully!', category='success')
-            login_user(user, remember=False)
-=======
         if user and check_password_hash(user.password, password):
             flash('Logged in', category='success')
             login_user(user, remember=True)
->>>>>>> 3719b3d81093853cd794739f61999b6ef6a4da2f
             return redirect(url_for('views.home'))
         else:
             flash("Incorrect username or password", category='error')
@@ -61,7 +54,6 @@ def sign_up():
             return redirect(url_for('views.home'))
 
     return render_template('sign_up.html')
-<<<<<<< HEAD
 
 
 @auth.route('/logout')
@@ -69,6 +61,4 @@ def sign_up():
 def logout():
     logout_user()
     flash("Logged out successfully!", category='success')
-    return redirect(url_for('web_auth.seller_login'))
-=======
->>>>>>> 3719b3d81093853cd794739f61999b6ef6a4da2f
+    return redirect(url_for('auth.login'))

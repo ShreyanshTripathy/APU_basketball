@@ -1,0 +1,89 @@
+{% include 'header.html' %}
+
+<div class="container mt-5">
+    <h1 class="mb-4">Add Event</h1>
+    
+    <!-- Form for Adding Event -->
+    <form method="POST" enctype="multipart/form-data" action="{{ url_for('add_event.add_new_event') }}">
+        <!-- CSRF Token (Optional: Use if Flask-WTF is enabled) -->
+        {% if csrf_token %}
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        {% endif %}
+
+        <!-- Title -->
+        <div class="mb-3">
+            <label for="title" class="form-label">Title</label>
+            <input 
+                type="text" 
+                class="form-control" 
+                id="title" 
+                name="title" 
+                placeholder="Enter event title" 
+                required>
+        </div>
+
+        <!-- Description -->
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea 
+                class="form-control" 
+                id="description" 
+                name="description" 
+                rows="4" 
+                placeholder="Enter event description" 
+                required></textarea>
+        </div>
+
+        <!-- Start Date -->
+        <div class="mb-3">
+            <label for="start_date" class="form-label">Start Date</label>
+            <input 
+                type="datetime-local" 
+                class="form-control" 
+                id="start_date" 
+                name="start_date" 
+                required>
+        </div>
+
+        <!-- End Date -->
+        <div class="mb-3">
+            <label for="end_date" class="form-label">End Date</label>
+            <input 
+                type="datetime-local" 
+                class="form-control" 
+                id="end_date" 
+                name="end_date" 
+                required>
+        </div>
+
+        <!-- Image Upload -->
+        <div class="mb-3">
+            <label for="image" class="form-label">Upload Image</label>
+            <input 
+                type="file" 
+                class="form-control" 
+                id="image" 
+                name="image" 
+                accept="image/*">
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary">Add Event</button>
+    </form>
+
+    <!-- Flash Messages -->
+    <div class="mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+</div>
+
+{% include 'footer.html' %}

@@ -1,0 +1,103 @@
+{% include 'header.html' %}
+
+<div class="container mt-5">
+    <h1 class="mb-4">Add Team</h1>
+    
+    <!-- Form for Adding a New Team -->
+    <form method="POST" enctype="multipart/form-data" action="{{ url_for('Teams.add_new_team') }}">
+        <!-- CSRF Token (Optional: Use if Flask-WTF is enabled) -->
+        {% if csrf_token %}
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        {% endif %}
+
+        <!-- Team Name -->
+        <div class="mb-3">
+            <label for="team_name" class="form-label">Team Name</label>
+            <input 
+                type="text" 
+                class="form-control" 
+                id="team_name" 
+                name="team_name" 
+                placeholder="Enter Team Name" 
+                required>
+        </div>
+
+        <!-- Team Captain -->
+        <div class="mb-3">
+            <label for="captain" class="form-label">Captain</label>
+            <input 
+                type="text" 
+                class="form-control" 
+                id="captain" 
+                name="captain" 
+                placeholder="Enter Captain's Name" 
+                required>
+        </div>
+
+        <!-- Team Members (Dynamic Input Fields) -->
+        <div class="mb-3">
+            <label class="form-label">Team Members</label>
+            <div id="members-container">
+                <div class="input-group mb-2">
+                    <input 
+                        type="text" 
+                        class="form-control" 
+                        name="member_name[]" 
+                        placeholder="Enter Member Name" 
+                        required>
+                    <button 
+                        type="button" 
+                        class="btn btn-outline-danger remove-member" 
+                        onclick="removeMember(this)">Remove</button>
+                </div>
+            </div>
+            <button 
+                type="button" 
+                class="btn btn-outline-primary" 
+                onclick="addMember()">Add Member</button>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary">Add Team</button>
+    </form>
+
+    <!-- Flash Messages -->
+    <div class="mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+</div>
+
+<script>
+    function addMember() {
+        const container = document.getElementById('members-container');
+        const memberInput = `
+            <div class="input-group mb-2">
+                <input 
+                    type="text" 
+                    class="form-control" 
+                    name="member_name[]" 
+                    placeholder="Enter Member Name" 
+                    required>
+                <button 
+                    type="button" 
+                    class="btn btn-outline-danger remove-member" 
+                    onclick="removeMember(this)">Remove</button>
+            </div>`;
+        container.insertAdjacentHTML('beforeend', memberInput);
+    }
+
+    function removeMember(button) {
+        button.parentElement.remove();
+    }
+</script>
+
+{% include 'footer.html' %}

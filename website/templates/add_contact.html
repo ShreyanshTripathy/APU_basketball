@@ -1,0 +1,79 @@
+{% include 'header.html' %}
+
+<div class="container mt-5">
+    <h1 class="mb-4">Add Contact</h1>
+    
+    <!-- Form for Adding Contact -->
+    <form method="POST" enctype="multipart/form-data" action="{{ url_for('add_contact.add_contact_view') }}">
+        <!-- CSRF Token (Optional: Use if Flask-WTF is enabled) -->
+        {% if csrf_token %}
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        {% endif %}
+
+        <!-- Name -->
+        <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <input 
+                type="text" 
+                class="form-control" 
+                id="name" 
+                name="name" 
+                placeholder="Enter name" 
+                required>
+        </div>
+
+        <!-- Phone Number -->
+        <div class="mb-3">
+            <label for="number" class="form-label">Phone Number</label>
+            <input 
+                type="tel" 
+                class="form-control" 
+                id="number" 
+                name="number" 
+                placeholder="Enter phone number" 
+                required>
+        </div>
+
+        <!-- Email -->
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input 
+                type="email" 
+                class="form-control" 
+                id="email" 
+                name="email" 
+                placeholder="Enter email address" 
+                required>
+        </div>
+
+        <!-- Image Upload -->
+        <div class="mb-3">
+            <label for="picture" class="form-label">Upload Picture</label>
+            <input 
+                type="file" 
+                class="form-control" 
+                id="picture" 
+                name="picture" 
+                accept="image/*">
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary">Add Contact</button>
+    </form>
+
+    <!-- Flash Messages -->
+    <div class="mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+</div>
+
+{% include 'footer.html' %}

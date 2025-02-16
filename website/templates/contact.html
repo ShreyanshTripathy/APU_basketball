@@ -1,0 +1,40 @@
+{% include 'header.html' %}
+
+<div class="container marketing">
+    <!-- Three columns of text below the carousel -->
+    <div class="row">
+        {% for member in members %}
+        <div class="col-lg-4 text-center mb-5">
+            {% if member.picture %}
+            <img src="{{ url_for('static', filename='assets/img/' + member.picture) }}" class="rounded-circle" width="140" height="140" alt="{{ member.Name }}">
+
+            {% else %}
+            <svg class="bd-placeholder-img rounded-circle" width="140" height="140" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder" preserveAspectRatio="xMidYMid slice" focusable="false">
+                <title>Placeholder</title>
+                <rect width="100%" height="100%" fill="#6c757d"></rect>
+            </svg>
+            {% endif %}
+            <h2 class="fw-normal">{{ member.Name }}</h2>
+            <p>Member of Basketball Committee{{member.picture}}</p>
+            <p>Number: {{ member.Number }}</p>
+            <p>
+                <a class="btn btn-secondary" href="mailto:{{ member.email_id }}">EmailId »</a>
+            </p>
+            {% if current_user.is_authenticated and current_user.id == 1 %}
+            <div class="d-flex justify-content-center mt-3" style="gap: 10px;">
+                <a href="{{ url_for('add_contact.edit_contact', contact_id=member.id) }}" class="btn btn-primary">
+                    Edit
+                </a>
+                <form action="{{ url_for('add_contact.delete_contact', contact_id=member.id) }}" method="POST" style="margin: 0;">
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this contact?');">
+                        Delete
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+        </div><!-- /.col-lg-4 -->
+        {% endfor %}
+    </div><!-- /.row -->
+</div>
+
+{% include 'footer.html' %}

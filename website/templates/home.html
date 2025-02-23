@@ -1,7 +1,6 @@
-{%include 'header.html'%}
+{% include 'header.html' %}
 <!-- Page Header-->
 <header class="masthead" style="background-image: url('{{ url_for('static', filename='assets/img/bb.jpg') }}'); background-size: cover;">
-
     <div class="container position-relative px-4 px-lg-5">
         <div class="row gx-4 gx-lg-5 justify-content-center">
             <div class="col-md-10 col-lg-8 col-xl-7">
@@ -44,20 +43,19 @@
 <div class="container px-4 py-5" id="custom-cards">
     <h2 class="pb-2 border-bottom">Events</h2>
 </div>
-<div class="container">
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+<!-- Horizontally scrollable cards -->
+<div class="container mb-5">
+    <div class="d-flex flex-nowrap overflow-auto" style="scroll-snap-type: x mandatory;">
         {% if events %}
             {% for event in events %}
-                <div class="col">
-                    <div class="card shadow-sm" style="width: 18rem;">
-                        <img src="{{ url_for('static', filename='assets/img/' ~ event.img_url) }}" class="card-img-top" alt="{{ event.title }}">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ event.title }}</h5>
-                            <p class="card-text">{{ event.description }}</p>
-                            
-                                <a href="{{ url_for('add_event.event_page', event_id = event.id) }}" class="btn btn-primary">View</a>
-                            
-                        </div>
+                <div class="card shadow-sm me-3" style="min-width: 18rem; scroll-snap-align: start;">
+                    <img src="{{ url_for('static', filename='assets/img/' ~ event.img_url) }}" class="card-img-top" alt="{{ event.title }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ event.title }}</h5>
+                        <p class="card-text">{{ event.description|truncate(100) }}</p>
+                        <p class="card-text"><small class="text-muted">Start: {{ event.start_date.strftime('%B %d, %Y') }}</small></p>
+                        <p class="card-text"><small class="text-muted">End: {{ event.end_date.strftime('%B %d, %Y') }}</small></p>
+                        <a href="{{ url_for('add_event.event_page', event_id=event.id) }}" class="btn btn-primary">View</a>
                     </div>
                 </div>
             {% endfor %}

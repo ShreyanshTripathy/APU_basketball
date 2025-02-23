@@ -5,7 +5,6 @@
     
     <!-- Form for Adding Event -->
     <form method="POST" enctype="multipart/form-data" action="{{ url_for('add_event.add_new_event') }}">
-        <!-- CSRF Token (Optional: Use if Flask-WTF is enabled) -->
         {% if csrf_token %}
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         {% endif %}
@@ -13,58 +12,31 @@
         <!-- Title -->
         <div class="mb-3">
             <label for="title" class="form-label">Title</label>
-            <input 
-                type="text" 
-                class="form-control" 
-                id="title" 
-                name="title" 
-                placeholder="Enter event title" 
-                required>
+            <input type="text" class="form-control" id="title" name="title" placeholder="Enter event title" required>
         </div>
 
         <!-- Description -->
         <div class="mb-3">
             <label for="description" class="form-label">Description</label>
-            <textarea 
-                class="form-control" 
-                id="description" 
-                name="description" 
-                rows="4" 
-                placeholder="Enter event description" 
-                required></textarea>
+            <textarea class="form-control" id="description" name="description" rows="4" placeholder="Enter event description" required></textarea>
         </div>
 
         <!-- Start Date -->
         <div class="mb-3">
             <label for="start_date" class="form-label">Start Date</label>
-            <input 
-                type="datetime-local" 
-                class="form-control" 
-                id="start_date" 
-                name="start_date" 
-                required>
+            <input type="text" class="form-control" id="start_date" name="start_date" required>
         </div>
 
         <!-- End Date -->
         <div class="mb-3">
             <label for="end_date" class="form-label">End Date</label>
-            <input 
-                type="datetime-local" 
-                class="form-control" 
-                id="end_date" 
-                name="end_date" 
-                required>
+            <input type="text" class="form-control" id="end_date" name="end_date" required>
         </div>
 
         <!-- Image Upload -->
         <div class="mb-3">
             <label for="image" class="form-label">Upload Image</label>
-            <input 
-                type="file" 
-                class="form-control" 
-                id="image" 
-                name="image" 
-                accept="image/*">
+            <input type="file" class="form-control" id="image" name="image" accept="image/*">
         </div>
 
         <!-- Submit Button -->
@@ -87,3 +59,29 @@
 </div>
 
 {% include 'footer.html' %}
+
+<!-- Flatpickr CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<!-- Optional Theme (e.g., Material Blue) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
+<!-- Confirm Date Plugin CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/confirmDate/confirmDate.css">
+
+<!-- Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<!-- Confirm Date Plugin JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/confirmDate/confirmDate.min.js"></script>
+
+<script>
+  // Initialize flatpickr with a confirm (OK) button for the start_date field
+  flatpickr("#start_date", {
+    dateFormat: "Y-m-d",  // Format: 2025-02-23
+    plugins: [new confirmDatePlugin({ confirmText: "OK", theme: "light" })]
+  });
+
+  // Initialize flatpickr with a confirm (OK) button for the end_date field
+  flatpickr("#end_date", {
+    dateFormat: "Y-m-d",
+    plugins: [new confirmDatePlugin({ confirmText: "OK", theme: "light" })]
+  });
+</script>

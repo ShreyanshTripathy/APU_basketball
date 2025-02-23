@@ -18,8 +18,8 @@ class Event(db.Model):
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
     img_url = db.Column(db.String(255), nullable=False)
-    start_date = db.Column(db.DateTime, default=func.now())
-    end_date = db.Column(db.DateTime, default=func.now())
+    start_date = db.Column(db.Date, default=func.current_date())
+    end_date = db.Column(db.Date, default=func.current_date())
     admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'), nullable=False)
     # matches = db.relationship('Match', backref='event', lazy=True)
     

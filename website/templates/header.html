@@ -28,45 +28,29 @@
                 <div class="collapse navbar-collapse" id="navbarResponsive">
                     <ul class="navbar-nav ms-auto py-4 py-lg-0">
                         <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="{{url_for('views.home')}}">Home</a></li>
-                        {%if not current_user.is_authenticated%}
-                        <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="{{url_for('auth.login')}}">Login</a></li>
-                        <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="{{url_for('auth.sign_up')}}">Sign-up</a></li>
-                        {%endif%}
                         <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="{{url_for('add_contact.new_contact')}}">Contacts</a></li>
-
-                        <li class="nav-item">
-                            {% if current_user.is_authenticated %}
-                            <a class="nav-link px-lg-3 py-3 py-lg-4" href="{{url_for('auth.logout')}}">Log Out</a>
-                            {% endif %}
-                        </li>
+        
+                        {% if current_user.is_authenticated %}
+                        <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="{{url_for('auth.logout')}}">Log Out</a></li>
                         
-                        <!-- Add Event Button (Admins Only) -->
-                        <li class="nav-item">
-                            {% if current_user.is_authenticated and current_user.id == 1 %}
-                            <a class="nav-link px-lg-3 py-3 py-lg-4" href="{{ url_for('add_event.add_new_event') }}">Add Event</a>
-                            {% endif %}
+                        {% if current_user.id == 1 %}
+                        <!-- Admin Dropdown -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle px-lg-3 py-3 py-lg-4" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Admin Panel
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+                                <li><a class="dropdown-item" href="{{ url_for('add_event.add_new_event') }}">Add Event</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('add_contact.add_contact_view') }}">Add Core Member</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('Teams.add_new_team') }}">Add Team</a></li>
+                            </ul>
                         </li>
-
-                        <!-- Add Core Member Button (Admins Only) -->
-                        <li class="nav-item">
-                            {% if current_user.is_authenticated and current_user.id == 1 %}
-                            <a class="nav-link px-lg-3 py-3 py-lg-4" href="{{ url_for('add_contact.add_contact_view') }}">Add Core Member</a>
-                            {% endif %}
-                        </li>
-
-                        <!-- Add Team Button (Admins Only) -->
-                        <li class="nav-item">
-                            {% if current_user.is_authenticated and current_user.id == 1 %}
-                            <a class="nav-link px-lg-3 py-3 py-lg-4" href="{{ url_for('Teams.add_new_team') }}">Add Team</a>
-                            {% endif %}
-                        </li>
-
-                        <!-- View Teams Button (Only if teams exist) -->
-                        <li class="nav-item">
-                            {% if teams|length > 0 %}
-                            <a class="nav-link px-lg-3 py-3 py-lg-4" href="{{ url_for('Teams.view_teams') }}">View Teams</a>
-                            {% endif %}
-                        </li>
+                        {% endif %}
+                        {% endif %}
+        
+                        {% if teams|length > 0 %}
+                        <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="{{ url_for('Teams.view_teams') }}">View Teams</a></li>
+                        {% endif %}
                     </ul>
                 </div>
             </div>

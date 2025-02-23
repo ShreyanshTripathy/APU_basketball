@@ -21,40 +21,55 @@ class Event(db.Model):
     start_date = db.Column(db.Date, default=func.current_date())
     end_date = db.Column(db.Date, default=func.current_date())
     admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'), nullable=False)
-    # matches = db.relationship('Match', backref='event', lazy=True)
-    
-class Core_members(db.Model):
+
+    matches = db.relationship('Match', backref='event', lazy=True)
+    teams = db.relationship('Team', backref='event', lazy=True)
+
+
+class CoreMembers(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     Name = db.Column(db.String(100), nullable=False)
     Number = db.Column(db.String(15), nullable=False)  # Use String for flexible phone formats
     email_id = db.Column(db.String(100), nullable=False)
     picture = db.Column(db.String(255), nullable=True)  # Store the path to the uploaded image
+
     admin_id = db.Column(db.Integer, db.ForeignKey('admin.id')) 
-    
+
+
 class Team(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    member_name = db.Column(db.String(100), nullable=False)
     team_name = db.Column(db.String(100), nullable=False)
-    captain = db.Column(db.Boolean, default=False)
 
-    # Relationship for team A (matches where this team is in team_a_id)
-    # team_a_matches = db.relationship('Match', foreign_keys='Match.team_a_id', back_populates='team_a')
+    members = db.relationship('TeamMembers', backref='team', lazy=True)
 
-    # Relationship for team B (matches where this team is in team_b_id)
-    # team_b_matches = db.relationship('Match', foreign_keys='Match.team_b_id', back_populates='team_b')
+    # Matches where this team is Team A
+    matches_as_team_a = db.relationship('Match', foreign_keys='Match.team_a_id', backref='team_a', lazy=True)
+
+    # Matches where this team is Team B
+    matches_as_team_b = db.relationship('Match', foreign_keys='Match.team_b_id', backref='team_b', lazy=True)
+
     admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'), nullable=False) 
 
 
+class TeamMembers(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100))
+    designation = db.Column(db.String(100)) # Captain/Male-Beginner/Male-Intermediate/Non-male/Faculty
+    year = db.Column(db.Integer)
+
+    team_id = db.Column(db.Integer, db.ForeignKey('team.id'), nullable=False)
+
+
+# We can schedule future matches as well, and then later update the scores
 class Match(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    team_a_id = db.Column(db.Integer, nullable=False)
-    team_b_id = db.Column(db.Integer, nullable=False)
-    date_time = db.Column(db.DateTime, default=func.now())
+
+    team_a_id = db.Column(db.Integer, db.ForeignKey('team.id'), nullable=False)
+    team_b_id = db.Column(db.Integer, db.ForeignKey('team.id'), nullable=False)
+
+    date_time = db.Column(db.DateTime, default=func.now()) # Match date and timings
     team_a_score = db.Column(db.Integer)
     team_b_score = db.Column(db.Integer)
+
     admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'), nullable=False)
     event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
-
-    # Explicitly define the reverse relationships using back_populates
-    # team_a = db.relationship('Team', foreign_keys=[team_a_id], back_populates='team_a_matches')
-    # team_b = db.relationship('Team', foreign_keys=[team_b_id], back_populates='team_b_matches')

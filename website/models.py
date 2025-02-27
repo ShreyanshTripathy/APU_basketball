@@ -16,7 +16,7 @@ class Event(db.Model):
     img_url = db.Column(db.String(255), nullable=False)
     start_date = db.Column(db.Date, default=func.current_date())
     end_date = db.Column(db.Date, default=func.current_date())
-    link = db.Column(db.String(255), nullable=True)  # New optional link field
+    link = db.Column(db.String(255), nullable=True)
     admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'), nullable=False)
 
     matches = db.relationship('Match', backref='event', lazy=True)
@@ -58,16 +58,12 @@ class Match(db.Model):
     admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'), nullable=False)
     event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
 
-# New models for album-based gallery
-
 class GalleryAlbum(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
-    # Optional association to an event; leave as NULL if not used.
     event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=True)
     date_created = db.Column(db.Date, default=func.current_date())
-    # Relationship to all images in this album.
     images = db.relationship('GalleryImage', backref='album', lazy=True)
 
 class GalleryImage(db.Model):

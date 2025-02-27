@@ -1,0 +1,51 @@
+{% include 'header.html' %}
+
+<div class="container mt-4 pb-5">
+    <h1 class="mb-4">Edit Homepage Content</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ 'warning' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <form method="POST" enctype="multipart/form-data">
+        <div class="mb-3">
+            <label for="header_title" class="form-label">Header Title</label>
+            <input type="text" class="form-control" id="header_title" name="header_title" value="{{ home_content.header_title }}">
+        </div>
+        <div class="mb-3">
+            <label for="header_subtitle" class="form-label">Header Subtitle</label>
+            <input type="text" class="form-control" id="header_subtitle" name="header_subtitle" value="{{ home_content.header_subtitle }}">
+        </div>
+        <div class="mb-3">
+            <label for="header_image" class="form-label">Header Image</label>
+            <input type="file" class="form-control" id="header_image" name="header_image">
+            <small class="form-text text-muted">Current Image: {{ home_content.header_image }}</small>
+        </div>
+        <div class="mb-3 text-right">
+            <label class="form-label">Current Header Image Preview</label><br>
+            <img src="{{ url_for('static', filename='assets/img/' ~ home_content.header_image) }}" 
+                 class="img-fluid" alt="Current Header Image" style="max-height: 200px;">
+        </div>
+        <div class="mb-3">
+            <label for="main_paragraph_1" class="form-label">Main Paragraph 1</label>
+            <textarea class="form-control" id="main_paragraph_1" name="main_paragraph_1" rows="3">{{ home_content.main_paragraph_1 }}</textarea>
+        </div>
+        <div class="mb-3">
+            <label for="main_paragraph_2" class="form-label">Main Paragraph 2</label>
+            <textarea class="form-control" id="main_paragraph_2" name="main_paragraph_2" rows="3">{{ home_content.main_paragraph_2 }}</textarea>
+        </div>
+        <div class="mb-3">
+            <label for="main_paragraph_3" class="form-label">Main Paragraph 3</label>
+            <textarea class="form-control" id="main_paragraph_3" name="main_paragraph_3" rows="3">{{ home_content.main_paragraph_3 }}</textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Update Homepage</button>
+    </form>
+</div>
+
+{% include 'footer.html' %}

@@ -29,13 +29,15 @@ def create_app():
     from .add_contact import add_contact
     from .team import Teams
     from .gallery import gallery  
+    from .admin_homepage import admin_homepage
 
     app.register_blueprint(views)
     app.register_blueprint(auth, url_prefix='/auth')
     app.register_blueprint(add_event, url_prefix='/add')
     app.register_blueprint(add_contact, url_prefix='/contact')
     app.register_blueprint(Teams, url_prefix='/teams')
-    app.register_blueprint(gallery, url_prefix='/gallery')  
+    app.register_blueprint(gallery, url_prefix='/gallery')
+    app.register_blueprint(admin_homepage, url_prefix='/admin')
 
     # Create database tables (if they don't exist already)
     with app.app_context():

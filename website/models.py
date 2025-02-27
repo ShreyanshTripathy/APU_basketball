@@ -23,7 +23,6 @@ class Event(db.Model):
     teams = db.relationship('Team', backref='event', lazy=True)
     galleries = db.relationship('GalleryAlbum', backref='event', lazy=True)
 
-
 class CoreMembers(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     Name = db.Column(db.String(100), nullable=False)
@@ -70,3 +69,13 @@ class GalleryImage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     image_url = db.Column(db.String(255), nullable=False)
     album_id = db.Column(db.Integer, db.ForeignKey('gallery_album.id'), nullable=False)
+
+# New model for editable homepage content
+class HomePageContent(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    header_title = db.Column(db.String(100), nullable=False, default="Basketball club")
+    header_subtitle = db.Column(db.String(255), nullable=False, default="This is what we do.")
+    header_image = db.Column(db.String(255), nullable=False, default="bb.jpg")
+    main_paragraph_1 = db.Column(db.Text, nullable=False, default="Lorem ipsum dolor sit amet, consectetur adipisicing elit. Saepe nostrum ullam eveniet pariatur voluptates odit, fuga atque ea nobis sit soluta odio, adipisci quas excepturi maxime quae totam ducimus consectetur?")
+    main_paragraph_2 = db.Column(db.Text, nullable=False, default="Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eius praesentium recusandae illo eaque architecto error, repellendus iusto reprehenderit, doloribus, minus sunt. Numquam at quae voluptatum in officia voluptas voluptatibus, minus!")
+    main_paragraph_3 = db.Column(db.Text, nullable=False, default="Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aut consequuntur magnam, excepturi aliquid ex itaque esse est vero natus quae optio aperiam soluta voluptatibus corporis atque iste neque sit tempora!")

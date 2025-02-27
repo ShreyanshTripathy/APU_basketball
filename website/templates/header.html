@@ -21,9 +21,9 @@
         <nav class="navbar navbar-expand-lg navbar-light" id="mainNav">
             <div class="container px-4 px-lg-5">
                 <a class="navbar-brand" href="{{ url_for('views.home') }}">Basketball Club</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-                    Menu
-                    <i class="fas fa-bars"></i>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" 
+                        aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+                    Menu <i class="fas fa-bars"></i>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarResponsive">
                     <ul class="navbar-nav ms-auto py-4 py-lg-0">
@@ -33,7 +33,7 @@
                         
                         {% if current_user.is_authenticated %}
                         <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="{{ url_for('auth.logout') }}">Log Out</a></li>
-                        
+
                         {% if current_user.id == 1 %}
                         <!-- Admin Dropdown -->
                         <li class="nav-item dropdown">
@@ -45,11 +45,12 @@
                                 <li><a class="dropdown-item" href="{{ url_for('add_contact.add_contact_view') }}">Add Core Member</a></li>
                                 <li><a class="dropdown-item" href="{{ url_for('Teams.add_new_team') }}">Add Team</a></li>
                                 <li><a class="dropdown-item" href="{{ url_for('gallery.add_gallery') }}">Add to Gallery</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('admin_homepage.edit_homepage') }}">Edit Homepage</a></li>
                             </ul>
                         </li>
                         {% endif %}
                         {% endif %}
-        
+
                         {% if teams|length > 0 %}
                         <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="{{ url_for('Teams.view_teams') }}">View Teams</a></li>
                         {% endif %}
@@ -57,6 +58,7 @@
                 </div>
             </div>
         </nav>
+
 
         <!-- Flash Messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}

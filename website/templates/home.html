@@ -1,12 +1,12 @@
 {% include 'header.html' %}
 <!-- Page Header-->
-<header class="masthead" style="background-image: url('{{ url_for('static', filename='assets/img/bb.jpg') }}'); background-size: cover;">
+<header class="masthead" style="background-image: url('{{ url_for('static', filename='assets/img/' ~ home_content.header_image) }}'); background-size: cover;">
     <div class="container position-relative px-4 px-lg-5">
         <div class="row gx-4 gx-lg-5 justify-content-center">
             <div class="col-md-10 col-lg-8 col-xl-7">
                 <div class="page-heading">
-                    <h1>Basketball club</h1>
-                    <span class="subheading">This is what we do.</span>
+                    <h1>{{ home_content.header_title }}</h1>
+                    <span class="subheading">{{ home_content.header_subtitle }}</span>
                 </div>
             </div>
         </div>
@@ -17,9 +17,9 @@
     <div class="container px-4 px-lg-5">
         <div class="row gx-4 gx-lg-5 justify-content-center">
             <div class="col-md-10 col-lg-8 col-xl-7">
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Saepe nostrum ullam eveniet pariatur voluptates odit, fuga atque ea nobis sit soluta odio, adipisci quas excepturi maxime quae totam ducimus consectetur?</p>
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eius praesentium recusandae illo eaque architecto error, repellendus iusto reprehenderit, doloribus, minus sunt. Numquam at quae voluptatum in officia voluptas voluptatibus, minus!</p>
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aut consequuntur magnam, excepturi aliquid ex itaque esse est vero natus quae optio aperiam soluta voluptatibus corporis atque iste neque sit tempora!</p>
+                <p>{{ home_content.main_paragraph_1 }}</p>
+                <p>{{ home_content.main_paragraph_2 }}</p>
+                <p>{{ home_content.main_paragraph_3 }}</p>
             </div>
         </div>
     </div>

@@ -1,0 +1,56 @@
+{% include 'header.html' %}
+{% block content %}
+<section class="py-5">
+  <div class="container-fluid">
+    <h2 class="text-center mb-4">Add Gallery Album</h2>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show mx-4" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    
+    <form action="{{ url_for('gallery.add_gallery') }}" method="POST" enctype="multipart/form-data" class="px-4">
+      <div class="mb-3">
+        <label for="title" class="form-label">Gallery Title</label>
+        <input type="text" id="title" name="title" class="form-control" required>
+      </div>
+      
+      <div class="mb-3">
+        <label for="description" class="form-label">Gallery Description</label>
+        <textarea id="description" name="description" class="form-control" rows="3" required></textarea>
+      </div>
+      
+      <!-- Optional Event Association -->
+      <div class="mb-3">
+        <label for="event" class="form-label">Associate with an Event (optional)</label>
+        <select id="event" name="event_id" class="form-control">
+          <option value="">-- None --</option>
+          {% for event in events %}
+            <option value="{{ event.id }}">{{ event.title }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      
+      <!-- Multiple Images Upload -->
+      <div class="mb-3">
+        <label for="images" class="form-label">Upload Images</label>
+        <input type="file" id="images" name="images" class="form-control" accept=".jpg, .jpeg, .png, .gif" multiple required>
+        <small class="form-text text-muted">Hold down Ctrl (Windows) or Command (Mac) to select multiple files.</small>
+      </div>
+      
+      <div class="d-flex justify-content-between">
+        <button type="submit" class="btn btn-primary">Create Gallery Album</button>
+        <a href="{{ url_for('gallery.gallery_view') }}" class="btn btn-secondary">Back to Gallery</a>
+      </div>
+    </form>
+  </div>
+</section>
+<div class="pb-5"></div>
+{% endblock %}
+{% include 'footer.html' %}

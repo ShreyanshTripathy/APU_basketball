@@ -2,7 +2,6 @@ from flask import Flask, session, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user
 import os
-from datetime import timedelta
 
 # Initialize extensions
 db = SQLAlchemy()
@@ -17,12 +16,10 @@ def create_app():
     """
     app = Flask(__name__)
     app.debug = True
-    app.config['SECRET_KEY'] = "8BYkEfBA6O6donzWlSihBXox7C0sKR6b"
-
-    # Basic configuration
-    app.debug = True
+    # Use environment variable if available, else default secret key
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default-secret-key')
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
+    
     db.init_app(app)
 
     # Import and register blueprints
@@ -30,13 +27,15 @@ def create_app():
     from .auth import auth
     from .add_event import add_event
     from .add_contact import add_contact
-    from.team import Teams
+    from .team import Teams
+    from .gallery import gallery  
 
     app.register_blueprint(views)
     app.register_blueprint(auth, url_prefix='/auth')
     app.register_blueprint(add_event, url_prefix='/add')
     app.register_blueprint(add_contact, url_prefix='/contact')
     app.register_blueprint(Teams, url_prefix='/teams')
+    app.register_blueprint(gallery, url_prefix='/gallery')  
 
     # Create database tables (if they don't exist already)
     with app.app_context():
@@ -44,10 +43,10 @@ def create_app():
 
     # Initialize Flask-Login
     login_manager.init_app(app)
-    login_manager.login_view = 'web_auth.login'
+    login_manager.login_view = 'auth.login'  # Updated login endpoint
     login_manager.login_message = "Please log in to access this page."
 
-    # Handle session clearing (alternative to `before_first_request`)
+    # Clear session on the very first request only
     first_request_flag = {"handled": False}
 
     @app.before_request
@@ -57,7 +56,6 @@ def create_app():
             first_request_flag["handled"] = True
             app.logger.info("Session cleared on app startup.")
 
-    # Debugging: Check user status before each request
     @app.before_request
     def check_user_status():
         if current_user.is_authenticated:
@@ -72,5 +70,5 @@ def load_user(user_id):
     """
     Callback function to reload the user object from the user ID stored in the session.
     """
-    from .models import Admin  # Import Admin model here to avoid circular imports
+    from .models import Admin  
     return Admin.query.get(int(user_id))

@@ -1,0 +1,45 @@
+{% include 'header.html' %}
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center">Edit Gallery Image</h2>
+    
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <form method="POST" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="title" class="form-label">Title</label>
+                    <input type="text" class="form-control" id="title" name="title" value="{{ image.title }}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea class="form-control" id="description" name="description" rows="3" required>{{ image.description }}</textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="date_taken" class="form-label">Date Taken</label>
+                    <input type="date" class="form-control" id="date_taken" name="date_taken" value="{{ image.date_taken.strftime('%Y-%m-%d') }}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Current Image</label>
+                    <div class="text-center">
+                        <img src="{{ url_for('static', filename='assets/img/' + image.image_url) }}" class="img-fluid rounded mb-3" style="max-width: 100%;">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="image" class="form-label">Upload New Image (Optional)</label>
+                    <input type="file" class="form-control" id="image" name="image" accept=".png, .jpg, .jpeg, .gif">
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-success">Update Image</button>
+                    <a href="{{ url_for('gallery.gallery_view') }}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% include 'footer.html' %}

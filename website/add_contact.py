@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from werkzeug.utils import secure_filename
-from .models import Core_members
+from .models import CoreMembers
 from . import db
 import os
 
@@ -46,7 +46,7 @@ def add_contact_view():
 
             picture.save(image_path)
         # Add core member to the database
-        new_member = Core_members(
+        new_member = CoreMembers(
             Name=name,
             Number=number,
             email_id=email,
@@ -63,12 +63,12 @@ def add_contact_view():
 @add_contact.route('/contact')
 def new_contact():
     # Fetch all members from the database
-    members = Core_members.query.all()
+    members = CoreMembers.query.all()
     return render_template('contact.html', members=members)
 
 @add_contact.route('/edit_contact/<int:contact_id>', methods=['GET', 'POST'])
 def edit_contact(contact_id):
-    contact = Core_members.query.get_or_404(contact_id)
+    contact = CoreMembers.query.get_or_404(contact_id)
     if request.method == 'POST':
         contact.Name = request.form.get('name')
         contact.Number = request.form.get('number')
@@ -98,7 +98,7 @@ def edit_contact(contact_id):
 
 @add_contact.route('/delete_contact/<int:contact_id>', methods=['POST'])
 def delete_contact(contact_id):
-    contact = Core_members.query.get_or_404(contact_id)
+    contact = CoreMembers.query.get_or_404(contact_id)
     db.session.delete(contact)
     db.session.commit()
     flash('Contact deleted successfully!', 'success')

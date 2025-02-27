@@ -48,14 +48,17 @@
     <div class="d-flex flex-nowrap overflow-auto" style="scroll-snap-type: x mandatory;">
         {% if events %}
             {% for event in events %}
-                <div class="card shadow-sm me-3" style="min-width: 18rem; scroll-snap-align: start;">
-                    <img src="{{ url_for('static', filename='assets/img/' ~ event.img_url) }}" class="card-img-top" alt="{{ event.title }}">
+                <div class="card shadow-sm me-3" style="flex: 0 0 20rem; scroll-snap-align: start;">
+                    <img src="{{ url_for('static', filename='assets/img/' ~ event.img_url) }}" 
+                         class="card-img-top" 
+                         alt="{{ event.title }}" 
+                         style="height: 200px; object-fit: cover;">
                     <div class="card-body">
                         <h5 class="card-title">{{ event.title }}</h5>
                         <p class="card-text">{{ event.description|truncate(100) }}</p>
                         <p class="card-text"><small class="text-muted">Start: {{ event.start_date.strftime('%B %d, %Y') }}</small></p>
                         <p class="card-text"><small class="text-muted">End: {{ event.end_date.strftime('%B %d, %Y') }}</small></p>
-                        <a href="{{ url_for('add_event.event_page', event_id=event.id) }}" class="btn btn-primary">View</a>
+                        <a href="{{ url_for('add_event.event_page', event_id=event.id) }}" class="btn btn-primary btn-sm">View</a>
                     </div>
                 </div>
             {% endfor %}
@@ -66,5 +69,3 @@
 </div>
 
 {% include 'footer.html' %}
-</body>
-</html>

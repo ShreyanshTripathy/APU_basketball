@@ -1,54 +1,53 @@
-{%include 'header.html'%}
+{% include 'header.html' %}
 
-<section class="">
-
-<form action="" method="POST">
-    <h2 align="center">Sign up</h2>
-    <br>
-
-    <div class="input-group mb-3">
-        <span class="input-group-text" id="addon-wrapping">@</span>
-        <input
-                type="text"
-                name="user_name"
-                class="form-control"
-                placeholder="username"
-                required
-                aria-label="username"
-                aria-describedby="button-addon2">
-
+<section class="py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h2 class="card-title text-center mb-4">Sign Up</h2>
+            <form action="" method="POST">
+              <div class="mb-3">
+                <label for="user_name" class="form-label">Username</label>
+                <div class="input-group">
+                  <span class="input-group-text">@</span>
+                  <input
+                    type="text"
+                    name="user_name"
+                    id="user_name"
+                    class="form-control"
+                    placeholder="Username"
+                    required>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input
+                  type="password"
+                  name="password"
+                  id="password"
+                  class="form-control"
+                  placeholder="Password"
+                  required>
+              </div>
+              <div class="mb-3">
+                <label for="confirm_password" class="form-label">Confirm Password</label>
+                <input
+                  type="password"
+                  name="confirm_password"
+                  id="confirm_password"
+                  class="form-control"
+                  placeholder="Confirm your password"
+                  required>
+              </div>
+              <div class="d-grid">
+                <button type="submit" class="btn btn-primary">Submit</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
-
-    <div class="input-group mb-3">
-        <span
-                class="input-group-text"
-                id="pswrd">Password</span>
-        <input
-                type="password"
-                name="password"
-                class="form-control"
-                placeholder="Password"
-                aria-label="password"
-                required >
-    </div>
-
-    <div class="input-group mb-3">
-        <span
-                class="input-group-text" id="confirm_password">Confirm Password</span>
-        <input
-                type="password"
-                name="confirm_password"
-                class="form-control"
-                placeholder="Enter your Password again"
-                aria-label="confirm_password"
-                required >
-    </div>
-
-    <br>
-    <button type="submit" class="btn btn-primary">Submit</button>
-</form>
+  </div>
 </section>
-
-
-
-

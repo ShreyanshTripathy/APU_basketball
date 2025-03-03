@@ -131,8 +131,13 @@ def delete_event(event_id):
     if current_user.id != 1:
         flash("You do not have permission to delete events.", category='error')
         return redirect(url_for('views.home'))
-
+        
     event = Event.query.get_or_404(event_id)
+    if len(event.galleries)>0:
+        flash("This event containas images, delete the images from galleries to delete the event")
+        return event_page(event_id)
+        
+    
     db.session.delete(event)
     db.session.commit()
     flash("Event deleted successfully.", category='success')

@@ -1,6 +1,6 @@
 {% include 'header.html' %}
 <!-- Page Header-->
-<header class="masthead" style="background-image: url('{{ url_for('static', filename='assets/img/' ~ home_content.header_image) }}'); background-size: cover;">
+<header class="masthead" style="background-image: url('{{ url_for('static', filename='assets/img/Home/' ~ home_content.header_image) }}'); background-size: cover;">
     <div class="container position-relative px-4 px-lg-5">
         <div class="row gx-4 gx-lg-5 justify-content-center">
             <div class="col-md-10 col-lg-8 col-xl-7">
@@ -41,31 +41,351 @@
 
 <!-- Events Section -->
 <div class="container px-4 py-5" id="custom-cards">
-    <h2 class="pb-2 border-bottom">Events</h2>
-</div>
-<!-- Horizontally scrollable cards -->
-<div class="container mb-5">
-    <div class="d-flex flex-nowrap overflow-auto" style="scroll-snap-type: x mandatory;">
+    <h2 class="pb-2 border-bottom text-center">Events</h2>
+  </div>
+  
+  <!-- Entire Event Panel (hover to pause auto-scroll and show arrows) -->
+  <div class="container position-relative mb-5 event-panel">
+    <!-- Left Arrow -->
+    <button id="prev-event" class="event-nav-button left-arrow" aria-label="Previous">
+      &#10094;
+    </button>
+  
+    <!-- Slider Container -->
+    <div class="event-slider-container">
+      <div class="event-slider">
         {% if events %}
-            {% for event in events %}
-                <div class="card shadow-sm me-3" style="flex: 0 0 20rem; scroll-snap-align: start;">
-                    <img src="{{ url_for('static', filename='assets/img/' ~ event.img_url) }}" 
-                         class="card-img-top" 
-                         alt="{{ event.title }}" 
-                         style="height: 200px; object-fit: cover;">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ event.title }}</h5>
-                        <p class="card-text">{{ event.description|truncate(100) }}</p>
-                        <p class="card-text"><small class="text-muted">Start: {{ event.start_date.strftime('%B %d, %Y') }}</small></p>
-                        <p class="card-text"><small class="text-muted">End: {{ event.end_date.strftime('%B %d, %Y') }}</small></p>
-                        <a href="{{ url_for('add_event.event_page', event_id=event.id) }}" class="btn btn-primary btn-sm">View</a>
-                    </div>
-                </div>
-            {% endfor %}
+          {% for event in events[::-1] %}
+            <div class="event-card card shadow-sm">
+              <img
+                src="{{ url_for('static', filename='assets/img/Event/' ~ event.img_url) }}"
+                class="card-img-top"
+                alt="{{ event.title }}"
+                style="height: 200px; object-fit: cover;"
+              >
+              <div class="card-body">
+                <h5 class="card-title">{{ event.title }}</h5>
+                <p class="card-text">{{ event.description|truncate(100) }}</p>
+                <p class="card-text">
+                  <small class="text-muted">Start: {{ event.start_date.strftime('%B %d, %Y') }}</small>
+                </p>
+                <p class="card-text">
+                  <small class="text-muted">End: {{ event.end_date.strftime('%B %d, %Y') }}</small>
+                </p>
+                <a
+                  href="{{ url_for('add_event.event_page', event_id=event.id) }}"
+                  class="btn btn-primary btn-sm"
+                >
+                  View
+                </a>
+              </div>
+            </div>
+          {% endfor %}
         {% else %}
-            <p>No upcoming events.</p>
+          <p>No upcoming events.</p>
         {% endif %}
+      </div>
     </div>
-</div>
+  
+    <!-- Right Arrow -->
+    <button id="next-event" class="event-nav-button right-arrow" aria-label="Next">
+      &#10095;
+    </button>
+  
+    <!-- Dots Indicator -->
+    <div id="dots-container" class="dots-container"></div>
+  </div>
+  
+
+<!-- CSS for Styling and Animation -->
+<style>
+    /* Slider container */
+    .event-slider-container {
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+    margin: 0 auto;
+    }
+
+    /* The slider row (holds all cards) */
+    .event-slider {
+    display: flex;
+    transition: transform 0.5s ease;
+    }
+
+    /* Each event card */
+    .event-card {
+    flex: 0 0 auto;
+    width: 300px;             /* Base width */
+    margin-right: 20px;       /* Gap between cards */
+    }
+    .event-card:last-child {
+    margin-right: 0;
+    }
+
+    /* Responsive breakpoints */
+    @media (max-width: 992px) {
+    .event-card {
+        width: 250px;
+    }
+    }
+    @media (max-width: 768px) {
+    .event-card {
+        width: 220px;
+    }
+    }
+    @media (max-width: 576px) {
+    .event-card {
+        width: 100%;
+        margin-right: 0;
+    }
+    }
+
+    /* Navigation arrow buttons - hidden by default */
+    .event-nav-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #fff;
+    border: none;
+    width: 40px;
+    height: 40px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 24px;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 2;
+    opacity: 0;              /* Hidden initially */
+    pointer-events: none;    /* Prevent accidental clicks when hidden */
+    }
+
+    /* Show buttons when hovering on the event-panel */
+    .event-panel:hover .event-nav-button {
+    opacity: 1;
+    pointer-events: auto;
+    }
+
+    .event-nav-button:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+    transform: translateY(-50%) scale(1.1);
+    }
+
+    .left-arrow {
+    left: 0;
+    }
+    .right-arrow {
+    right: 0;
+    }
+
+    @media (max-width: 576px) {
+    .left-arrow {
+        left: 10px;
+    }
+    .right-arrow {
+        right: 10px;
+    }
+    }
+
+    /* Dots (Indicators) */
+    .dots-container {
+    text-align: center;
+    margin-top: 15px;
+    }
+    .dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #ccc;
+    margin: 0 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    }
+    .dot.active {
+    background: #000;
+    }
+
+</style>
+
+<!-- JavaScript for Sliding Animation -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const slider = document.querySelector(".event-slider");
+      const sliderContainer = document.querySelector(".event-slider-container");
+      const eventPanel = document.querySelector(".event-panel");
+      const prevButton = document.getElementById("prev-event");
+      const nextButton = document.getElementById("next-event");
+      const dotsContainer = document.getElementById("dots-container");
+    
+      // Save original event cards for cloning
+      let originalCards = Array.from(slider.querySelectorAll(".event-card"));
+      let visibleCards = 1;
+      let currentIndex = 0; // Will be set after clones are added
+      let autoScrollInterval;
+      let isAnimating = false;
+    
+      // Setup slider: clones for infinite effect
+      function setupSlider() {
+        slider.innerHTML = "";
+        // Append original cards
+        originalCards.forEach(card => {
+          slider.appendChild(card.cloneNode(true));
+        });
+    
+        // Calculate visible cards based on container width
+        const containerWidth = sliderContainer.offsetWidth;
+        const cardEl = slider.querySelector(".event-card");
+        const cardStyle = window.getComputedStyle(cardEl);
+        const cardWidth = cardEl.offsetWidth + parseInt(cardStyle.marginRight);
+        visibleCards = Math.floor(containerWidth / cardWidth);
+        if (visibleCards < 1) visibleCards = 1;
+    
+        // Clone last visibleCards and prepend them
+        const clonesBefore = [];
+        for (let i = originalCards.length - visibleCards; i < originalCards.length; i++) {
+          clonesBefore.push(originalCards[i].cloneNode(true));
+        }
+        clonesBefore.forEach(clone => {
+          slider.insertBefore(clone, slider.firstChild);
+        });
+    
+        // Clone first visibleCards and append them
+        const clonesAfter = [];
+        for (let i = 0; i < visibleCards; i++) {
+          clonesAfter.push(originalCards[i].cloneNode(true));
+        }
+        clonesAfter.forEach(clone => {
+          slider.appendChild(clone);
+        });
+    
+        // Set initial position to the start of original slides
+        currentIndex = visibleCards;
+        updateSliderPosition(false);
+        createDots();
+      }
+    
+      // Update slider transform based on currentIndex
+      function updateSliderPosition(animate = true) {
+        if (!animate) {
+          slider.style.transition = "none";
+        } else {
+          slider.style.transition = "transform 0.5s ease";
+        }
+        const cardEl = slider.querySelector(".event-card");
+        const cardStyle = window.getComputedStyle(cardEl);
+        const cardWidth = cardEl.offsetWidth + parseInt(cardStyle.marginRight);
+        const offset = -currentIndex * cardWidth;
+        slider.style.transform = `translateX(${offset}px)`;
+      }
+    
+      // Create dots based on number of slides (original cards / visibleCards)
+      function createDots() {
+        const totalSlides = Math.ceil(originalCards.length / visibleCards);
+        dotsContainer.innerHTML = "";
+        for (let i = 0; i < totalSlides; i++) {
+          const dot = document.createElement("span");
+          dot.classList.add("dot");
+          dot.addEventListener("click", () => goToSlide(i));
+          dotsContainer.appendChild(dot);
+        }
+        updateDots();
+      }
+    
+      // Update active dot
+      function updateDots() {
+        const dots = dotsContainer.querySelectorAll(".dot");
+        // Determine the current slide (0-indexed)
+        let activeSlide = Math.floor((currentIndex - visibleCards) / visibleCards);
+        if (activeSlide < 0) activeSlide = dots.length - 1;
+        if (activeSlide >= dots.length) activeSlide = 0;
+        dots.forEach(dot => dot.classList.remove("active"));
+        if (dots[activeSlide]) {
+          dots[activeSlide].classList.add("active");
+        }
+      }
+    
+      // Slide to next
+      function nextSlide() {
+        if (isAnimating) return;
+        isAnimating = true;
+        currentIndex++;
+        updateSliderPosition();
+        updateDots();
+        slider.addEventListener("transitionend", function handler() {
+          slider.removeEventListener("transitionend", handler);
+          // If reached cloned end, jump to original first slide
+          if (currentIndex >= originalCards.length + visibleCards) {
+            currentIndex = visibleCards;
+            updateSliderPosition(false);
+          }
+          isAnimating = false;
+        });
+      }
+    
+      // Slide to previous
+      function prevSlide() {
+        if (isAnimating) return;
+        isAnimating = true;
+        currentIndex--;
+        updateSliderPosition();
+        updateDots();
+        slider.addEventListener("transitionend", function handler() {
+          slider.removeEventListener("transitionend", handler);
+          // If reached cloned beginning, jump to original end
+          if (currentIndex < visibleCards) {
+            currentIndex = originalCards.length + visibleCards - 1;
+            updateSliderPosition(false);
+          }
+          isAnimating = false;
+        });
+      }
+    
+      // Jump to a specific slide (dot click)
+      function goToSlide(slideIndex) {
+        if (isAnimating) return;
+        isAnimating = true;
+        currentIndex = visibleCards + slideIndex * visibleCards;
+        updateSliderPosition();
+        updateDots();
+        slider.addEventListener("transitionend", function handler() {
+          slider.removeEventListener("transitionend", handler);
+          isAnimating = false;
+        });
+      }
+    
+      // Auto-scroll setup
+      function startAutoScroll() {
+        autoScrollInterval = setInterval(nextSlide, 4000);
+      }
+      function stopAutoScroll() {
+        clearInterval(autoScrollInterval);
+      }
+    
+      // Pause auto-scroll and show arrow buttons on mouse enter
+      eventPanel.addEventListener("mouseenter", () => {
+        stopAutoScroll();
+      });
+      // Resume auto-scroll and hide arrow buttons when mouse leaves
+      eventPanel.addEventListener("mouseleave", () => {
+        startAutoScroll();
+      });
+    
+      // Button events
+      nextButton.addEventListener("click", nextSlide);
+      prevButton.addEventListener("click", prevSlide);
+    
+      // Recalculate layout on window resize
+      window.addEventListener("resize", setupSlider);
+    
+      // Initial setup
+      setupSlider();
+      startAutoScroll();
+    });
+    </script>
+    
+    
+    
+
 
 {% include 'footer.html' %}

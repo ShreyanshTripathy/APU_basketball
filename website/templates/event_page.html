@@ -1,5 +1,6 @@
 {% include 'header.html' %}
 <style>
+  /* Gallery grid styling */
   .img-container {
     position: relative;
     width: 100%;
@@ -27,33 +28,109 @@
     align-items: center;
     justify-content: center;
     transition: opacity 0.3s;
-    color: #fff;
-    font-size: 18px;
+    cursor: pointer;
   }
   .img-container:hover .img-overlay {
     opacity: 1;
-    cursor: pointer;
   }
-  /* Modal styling for almost full-screen display */
+  .magnify-icon {
+    width: 48px;
+    height: 48px;
+    stroke: #fff;
+    stroke-width: 2;
+    fill: none;
+  }
+  
+  /* Modal styling */
   .modal-dialog {
     max-width: 95%;
     margin: 1.75rem auto;
   }
   .modal-content {
     height: 90vh;
+    position: relative;
+    background: transparent;
+    border: none;
   }
   .modal-body {
     padding: 0;
-    height: calc(90vh - 56px); /* accounting for modal footer height */
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    height: calc(90vh - 56px);
     background: #000;
+    overflow: hidden;
+    position: relative;
   }
-  #modalImage {
-    max-width: 100%;
-    max-height: 100%;
+  
+  /* Modal slider styling */
+  .modal-slider-container {
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+  .modal-slider {
+    display: flex;
+    transition: transform 0.5s ease;
+    height: 100%;
+  }
+  .modal-slide {
+    min-width: 100%;
+    height: 100%;
+    position: relative;
+  }
+  .modal-slide img {
+    width: 100%;
+    height: 100%;
     object-fit: contain;
+  }
+  
+  /* Navigation buttons for modal slider */
+  .modal-nav-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    color: #fff;
+    font-size: 2rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 1050;
+    transition: background 0.3s ease, transform 0.3s ease;
+  }
+  .modal-nav-button:hover {
+    background: rgba(0, 0, 0, 0.8);
+    transform: translateY(-50%) scale(1.1);
+  }
+  .modal-nav-button.left {
+    left: 10px;
+  }
+  .modal-nav-button.right {
+    right: 10px;
+  }
+  
+  /* Dots indicators in modal slider */
+  .modal-dots {
+    position: absolute;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    z-index: 1051;
+  }
+  .modal-dots .dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background: #ccc;
+    border-radius: 50%;
+    margin: 0 3px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  .modal-dots .dot.active {
+    background: #fff;
   }
 </style>
 
@@ -62,7 +139,7 @@
     <!-- Event Details -->
     <div class="row align-items-center g-4">
       <div class="col-md-5">
-        <img src="{{ url_for('static', filename='assets/img/' ~ event.img_url) }}"
+        <img src="{{ url_for('static', filename='assets/img/Event/' ~ event.img_url) }}"
              class="img-fluid w-100 rounded" 
              style="max-height: 400px; object-fit: cover;" 
              alt="{{ event.title }}">
@@ -89,7 +166,7 @@
       </div>
     </div>
 
-    <!-- Event Gallery: Display all images uniformly without titles -->
+    <!-- Event Gallery -->
     {% if gallery_images %}
     <div class="mt-5">
       <h3>Event Gallery</h3>
@@ -97,9 +174,15 @@
         {% for image in gallery_images %}
         <div class="col-md-3 mb-4">
           <div class="img-container">
-            <img src="{{ url_for('static', filename='assets/img/' ~ image.image_url) }}" class="gallery-img" alt="">
-            <div class="img-overlay" onclick="enlargeImage('{{ url_for('static', filename='assets/img/' ~ image.image_url) }}')">
-              Enlarge
+            <img src="{{ url_for('static', filename='assets/img/Gallery/' ~ image.image_url) }}" 
+                 class="gallery-img" 
+                 alt=""
+                 onclick="openModal({{ loop.index0 }})">
+            <div class="img-overlay" onclick="enlargeImage('{{ url_for('static', filename='assets/img/Gallery/' ~ image.image_url) }}', {{ loop.index0 }})">
+              <svg class="magnify-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
             </div>
           </div>
         </div>
@@ -111,26 +194,172 @@
   </div>
 </main>
 
-<!-- Modal for Enlarged Image -->
+<!-- Modal for Enlarged Image with Slider -->
 <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content" style="background: transparent; border: none;">
-      <!-- Custom Close Icon -->
+    <div class="modal-content">
+      <!-- Close button -->
       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" 
         style="position: absolute; top: 20px; right: 20px; z-index: 1051; filter: invert(1);"></button>
-      <div class="modal-body p-0" style="display: flex; justify-content: center; align-items: center; background: #000;">
-        <img id="modalImage" src="" alt="" style="max-width: 100%; max-height: 90vh; object-fit: contain;">
+      <!-- Navigation buttons -->
+      <button id="modalPrev" class="modal-nav-button left" aria-label="Previous">&lsaquo;</button>
+      <button id="modalNext" class="modal-nav-button right" aria-label="Next">&rsaquo;</button>
+      
+      <div class="modal-body p-0">
+        <div id="modalSliderContainer" class="modal-slider-container">
+          <div id="modalSlider" class="modal-slider">
+            <!-- Slides will be injected here dynamically -->
+          </div>
+        </div>
       </div>
+      <!-- Dots Indicator -->
+      <div id="modalDots" class="modal-dots"></div>
     </div>
   </div>
 </div>
-<!-- JavaScript to handle image enlarge action -->
+
 <script>
-  function enlargeImage(src) {
-    document.getElementById('modalImage').src = src;
-    var myModal = new bootstrap.Modal(document.getElementById('imageModal'));
-    myModal.show();
+  // Build gallery images array from Jinja
+  const galleryImagesArray = [
+    {% for image in gallery_images %}
+      "{{ url_for('static', filename='assets/img/Gallery/' ~ image.image_url) }}"{{ "," if not loop.last }}
+    {% endfor %}
+  ];
+  const totalSlides = galleryImagesArray.length;
+  let currentIndex = 0; // Index of the currently displayed image (0-indexed in galleryImagesArray)
+  let slider;         // Will hold the slider element (the inner div)
+  
+  // Build the modal slider with clones for infinite sliding
+  function buildModalSlider() {
+    const sliderContainer = document.getElementById("modalSlider");
+    sliderContainer.innerHTML = "";
+    
+    // Clone the last image and add as the first slide
+    const cloneLast = document.createElement("div");
+    cloneLast.classList.add("modal-slide");
+    const imgCloneLast = document.createElement("img");
+    imgCloneLast.src = galleryImagesArray[totalSlides - 1];
+    cloneLast.appendChild(imgCloneLast);
+    sliderContainer.appendChild(cloneLast);
+    
+    // Create a slide for each image in the gallery
+    galleryImagesArray.forEach(src => {
+      const slide = document.createElement("div");
+      slide.classList.add("modal-slide");
+      const img = document.createElement("img");
+      img.src = src;
+      slide.appendChild(img);
+      sliderContainer.appendChild(slide);
+    });
+    
+    // Clone the first image and add as the last slide
+    const cloneFirst = document.createElement("div");
+    cloneFirst.classList.add("modal-slide");
+    const imgCloneFirst = document.createElement("img");
+    imgCloneFirst.src = galleryImagesArray[0];
+    cloneFirst.appendChild(imgCloneFirst);
+    sliderContainer.appendChild(cloneFirst);
+    
+    slider = sliderContainer;
+    
+    // Set initial currentIndex to 1 (the first real slide)
+    currentIndex = 1;
+    updateSliderPosition(false);
+    buildDots();
   }
+  
+  // Update slider position via CSS transform
+  function updateSliderPosition(animate = true) {
+    if (!animate) {
+      slider.style.transition = "none";
+    } else {
+      slider.style.transition = "transform 0.5s ease";
+    }
+    slider.style.transform = `translateX(-${currentIndex * 100}%)`;
+  }
+  
+  // Build dots indicators based on total slides (excluding clones)
+  function buildDots() {
+    const dotsContainer = document.getElementById("modalDots");
+    dotsContainer.innerHTML = "";
+    for (let i = 0; i < totalSlides; i++) {
+      const dot = document.createElement("span");
+      dot.classList.add("dot");
+      if (i === currentIndex - 1) {
+        dot.classList.add("active");
+      }
+      dot.addEventListener("click", () => {
+        goToSlide(i + 1);
+      });
+      dotsContainer.appendChild(dot);
+    }
+  }
+  
+  // Update active dot indicator
+  function updateDots() {
+    const dots = document.querySelectorAll("#modalDots .dot");
+    dots.forEach((dot, i) => {
+      dot.classList.toggle("active", i === currentIndex - 1);
+    });
+  }
+  
+  // Go to a specific slide (real slides are indexed 1 to totalSlides)
+  function goToSlide(slideNumber) {
+    currentIndex = slideNumber;
+    updateSliderPosition();
+    updateDots();
+  }
+  
+  // Navigate to next slide with infinite loop handling
+  function nextSlide() {
+    currentIndex++;
+    updateSliderPosition();
+    updateDots();
+    slider.addEventListener("transitionend", function handler() {
+      slider.removeEventListener("transitionend", handler);
+      if (currentIndex === totalSlides + 1) { // At clone of first slide
+        currentIndex = 1;
+        updateSliderPosition(false);
+        updateDots();
+      }
+    });
+  }
+  
+  // Navigate to previous slide with infinite loop handling
+  function prevSlide() {
+    currentIndex--;
+    updateSliderPosition();
+    updateDots();
+    slider.addEventListener("transitionend", function handler() {
+      slider.removeEventListener("transitionend", handler);
+      if (currentIndex === 0) { // At clone of last slide
+        currentIndex = totalSlides;
+        updateSliderPosition(false);
+        updateDots();
+      }
+    });
+  }
+  
+  // Open the modal and build the slider
+  function openModal(index) {
+    buildModalSlider();
+    // Set currentIndex to index+1 since first slide is a clone
+    currentIndex = index + 1;
+    updateSliderPosition(false);
+    updateDots();
+    const modalEl = document.getElementById('imageModal');
+    const modal = new bootstrap.Modal(modalEl);
+    modal.show();
+  }
+  
+  // Bridge function: enlargeImage calls openModal.
+  function enlargeImage(src, index) {
+    openModal(index);
+  }
+  
+  // Attach event listeners to modal navigation buttons
+  document.getElementById("modalNext").addEventListener("click", nextSlide);
+  document.getElementById("modalPrev").addEventListener("click", prevSlide);
 </script>
 
 {% include 'footer.html' %}

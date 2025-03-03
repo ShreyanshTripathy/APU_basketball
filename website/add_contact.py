@@ -35,14 +35,9 @@ def add_contact_view():
         # Save picture if uploaded
         picture_filename = None
         if picture and allowed_file(picture.filename):
-            # uploads_dir = os.path.join('website', 'static', 'assets', 'img')
-            # os.makedirs(uploads_dir, exist_ok=True)  # Ensure directory exists
-            # picture_filename = os.path.join(uploads_dir, secure_filename(picture.filename))
-            # picture.save(picture_filename)
-            # picture_filename = picture_filename.replace(os.sep, '/')  # Use forward slashes for web paths
             
             image_filename = secure_filename(picture.filename)
-            image_path = os.path.join('website', 'static', 'assets', 'img', image_filename)
+            image_path = os.path.join('website', 'static', 'assets', 'img', 'Contact', image_filename)
 
             picture.save(image_path)
         # Add core member to the database
@@ -77,14 +72,10 @@ def edit_contact(contact_id):
         # Handle picture update
         picture = request.files.get('picture')
         if picture and allowed_file(picture.filename):
-            # uploads_dir = os.path.join('website', 'static', 'assets', 'img')
-            # os.makedirs(uploads_dir, exist_ok=True)
-            # picture_filename = secure_filename(picture.filename)
-            # picture.save(os.path.join(uploads_dir, secure_filename(picture.filename)))
-            # contact.picture = picture_filename.replace(os.sep, '/')
+           
             
             image_filename = secure_filename(picture.filename)
-            image_path = os.path.join('website', 'static', 'assets', 'img', image_filename)
+            image_path = os.path.join('website', 'static', 'assets', 'img', 'Contact', image_filename)
 
             picture.save(image_filename)
 
@@ -99,6 +90,10 @@ def edit_contact(contact_id):
 @add_contact.route('/delete_contact/<int:contact_id>', methods=['POST'])
 def delete_contact(contact_id):
     contact = CoreMembers.query.get_or_404(contact_id)
+    
+    image_path = os.path.join('website', 'static', 'assets', 'img', 'Contact', contact.picture)
+    if os.path.exists(image_path):
+        os.remove(image_path)
     db.session.delete(contact)
     db.session.commit()
     flash('Contact deleted successfully!', 'success')

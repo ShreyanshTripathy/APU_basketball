@@ -6,7 +6,7 @@
         {% for member in members %}
         <div class="col-lg-4 text-center mb-5">
             {% if member.picture %}
-            <img src="{{ url_for('static', filename='assets/img/' + member.picture) }}" class="rounded-circle" width="140" height="140" alt="{{ member.Name }}">
+            <img src="{{ url_for('static', filename='assets/img/Contact/' + member.picture) }}" class="rounded-circle" width="140" height="140" alt="{{ member.Name }}">
 
             {% else %}
             <svg class="bd-placeholder-img rounded-circle" width="140" height="140" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder" preserveAspectRatio="xMidYMid slice" focusable="false">

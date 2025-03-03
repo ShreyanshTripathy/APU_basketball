@@ -36,7 +36,7 @@
         {% for image in album.images %}
         <div class="col-md-3 mb-3">
             <div class="card">
-                <img src="{{ url_for('static', filename='assets/img/' ~ image.image_url) }}" class="card-img-top img-fluid" alt="Image">
+                <img src="{{ url_for('static', filename='assets/img/Gallery/' ~ image.image_url) }}" class="card-img-top img-fluid" alt="Image">
                 <div class="card-body text-center">
                     <form action="{{ url_for('gallery.delete_gallery_image', image_id=image.id) }}" method="POST">
                         <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this image?');">Delete</button>

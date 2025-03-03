@@ -28,10 +28,10 @@
       
       <!-- Optional Event Association -->
       <div class="mb-3">
-        <label for="event" class="form-label">Associate with an Event (optional)</label>
+        <label for="event" class="form-label">Associate with an Event (optional)</label>     
         <select id="event" name="event_id" class="form-control">
           <option value="">-- None --</option>
-          {% for event in events %}
+          {% for event in events[::-1] %}
             <option value="{{ event.id }}">{{ event.title }}</option>
           {% endfor %}
         </select>

@@ -8,7 +8,7 @@
             <div class="card">
                 <a href="{{ url_for('gallery.gallery_detail', album_id=album.id) }}">
                     {% if album.images|length > 0 %}
-                      <img src="{{ url_for('static', filename='assets/img/' ~ album.images[0].image_url) }}" class="card-img-top img-fluid" alt="{{ album.title }}">
+                      <img src="{{ url_for('static', filename='assets/img/Gallery/' ~ album.images[0].image_url) }}" class="card-img-top img-fluid" alt="{{ album.title }}">
                     {% else %}
                       <img src="{{ url_for('static', filename='assets/img/placeholder.jpg') }}" class="card-img-top img-fluid" alt="No image available">
                     {% endif %}

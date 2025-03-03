@@ -47,9 +47,9 @@ def add_gallery():
             event_id=event_id
         )
         db.session.add(new_album)
-        db.session.commit()  # Commit so new_album.id is available.
+        db.session.commit()
         
-        upload_folder = os.path.join('website', 'static', 'assets', 'img')
+        upload_folder = os.path.join('website', 'static', 'assets', 'img', 'Gallery')
         os.makedirs(upload_folder, exist_ok=True)
         
         for image in images:
@@ -98,7 +98,7 @@ def edit_gallery(album_id):
         
         # Handle additional image uploads (optional)
         new_images = request.files.getlist('images')
-        upload_folder = os.path.join('website', 'static', 'assets', 'img')
+        upload_folder = os.path.join('website', 'static', 'assets', 'img', 'Gallery')
         os.makedirs(upload_folder, exist_ok=True)
         
         for image in new_images:
@@ -126,9 +126,8 @@ def delete_gallery(album_id):
         return redirect(url_for('gallery.gallery_view'))
     
     album = GalleryAlbum.query.get_or_404(album_id)
-    # Optionally delete image files from the server.
     for image in album.images:
-        image_path = os.path.join('website', 'static', 'assets', 'img', image.image_url)
+        image_path = os.path.join('website', 'static', 'assets', 'img','Gallery', image.image_url)
         if os.path.exists(image_path):
             os.remove(image_path)
         db.session.delete(image)
@@ -147,7 +146,7 @@ def delete_gallery_image(image_id):
     
     image = GalleryImage.query.get_or_404(image_id)
     album_id = image.album_id
-    image_path = os.path.join('website', 'static', 'assets', 'img', image.image_url)
+    image_path = os.path.join('website', 'static', 'assets', 'img','Gallery', image.image_url)
     if os.path.exists(image_path):
         os.remove(image_path)
     db.session.delete(image)

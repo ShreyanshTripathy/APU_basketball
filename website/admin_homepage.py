@@ -6,7 +6,7 @@ from .models import HomePageContent
 
 admin_homepage = Blueprint('admin_homepage', __name__)
 
-UPLOAD_FOLDER = os.path.join('static', 'assets', 'img')
+UPLOAD_FOLDER = os.path.join('static', 'assets', 'img', "Home")
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 def allowed_file(filename):

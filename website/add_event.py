@@ -47,7 +47,7 @@ def add_new_event():
             return redirect(url_for('add_event.add_new_event'))
 
         image_filename = secure_filename(image.filename)
-        image_path = os.path.join('website', 'static', 'assets', 'img', image_filename)
+        image_path = os.path.join('website', 'static', 'assets', 'img','Event', image_filename)
         os.makedirs(os.path.dirname(image_path), exist_ok=True)
 
         try:
@@ -113,7 +113,7 @@ def edit_event(event_id):
 
         if image and allowed_file(image.filename):
             image_filename = secure_filename(image.filename)
-            image_path = os.path.join('website', 'static', 'assets', 'img', image_filename)
+            image_path = os.path.join('website', 'static', 'assets', 'img','Event', image_filename)
             os.makedirs(os.path.dirname(image_path), exist_ok=True)
             image.save(image_path)
             event.img_url = image_filename
@@ -136,8 +136,11 @@ def delete_event(event_id):
     if len(event.galleries)>0:
         flash("This event containas images, delete the images from galleries to delete the event")
         return event_page(event_id)
-        
     
+    image_path = os.path.join('website', 'static', 'assets', 'img', 'Event', event.img_url)
+    if os.path.exists(image_path):
+        os.remove(image_path)
+            
     db.session.delete(event)
     db.session.commit()
     flash("Event deleted successfully.", category='success')

@@ -8,6 +8,7 @@ from . import db
 auth = Blueprint('auth', __name__)
 
 
+# To login use /auth/login
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':

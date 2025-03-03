@@ -33,9 +33,9 @@ def create_app():
 
     app.register_blueprint(views)
     app.register_blueprint(auth, url_prefix='/auth')
-    app.register_blueprint(add_event, url_prefix='/add')
+    app.register_blueprint(add_event)
     app.register_blueprint(add_contact, url_prefix='/contact')
-    app.register_blueprint(Teams, url_prefix='/teams')
+    app.register_blueprint(Teams)
     app.register_blueprint(gallery, url_prefix='/gallery')
     app.register_blueprint(admin_homepage, url_prefix='/admin')
 

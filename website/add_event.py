@@ -3,7 +3,7 @@ from werkzeug.utils import secure_filename
 from flask_login import current_user, login_required
 import os
 from datetime import datetime
-from .models import Event,GalleryImage, GalleryAlbum
+from .models import Event,GalleryImage, GalleryAlbum, Team
 from . import db
 
 add_event = Blueprint('add_event', __name__)
@@ -133,7 +133,8 @@ def delete_event(event_id):
         return redirect(url_for('views.home'))
         
     event = Event.query.get_or_404(event_id)
-    if len(event.galleries)>0:
+
+    if len(event.galleries) > 0:
         flash("This event containas images, delete the images from galleries to delete the event")
         return event_page(event_id)
         
@@ -150,7 +151,20 @@ def event_page(event_id):
         abort(404)
     # Query all images from albums that are associated with this event
     gallery_images = GalleryImage.query.join(GalleryAlbum).filter(GalleryAlbum.event_id == event.id).all()
-    return render_template('event_page.html', event=event, gallery_images=gallery_images)
+    teams = Team.query.filter_by(event_id=event_id).all()
 
+    team_json = {
+        team.team_name: {
+            "captain": team.captain_name,
+            "members": [[player.name, player.level, player.gender] for player in team.members],
+            "event_id": team.event_id,
+            "team_id": team.id,
+        }
+        for team in teams
+    }
+    print("FUCCCCCCCKKKKKKKKKKKKKKKKKKKKK")
+    print()
+    print(team_json)
+    print()
 
-
+    return render_template('event_page.html', event=event, gallery_images=gallery_images, team_json=team_json)

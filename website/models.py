@@ -34,8 +34,10 @@ class CoreMembers(db.Model):
 class Team(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     team_name = db.Column(db.String(100), nullable=False)
+    captain_name = db.Column(db.String(100), nullable=False)
     event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
-    members = db.relationship('TeamMembers', backref='team', lazy=True)
+
+    members = db.relationship('TeamMembers', backref='team', lazy=True, cascade='all, delete')
     matches_as_team_a = db.relationship('Match', foreign_keys='Match.team_a_id', backref='team_a', lazy=True)
     matches_as_team_b = db.relationship('Match', foreign_keys='Match.team_b_id', backref='team_b', lazy=True)
     admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'), nullable=False)
@@ -43,8 +45,10 @@ class Team(db.Model):
 class TeamMembers(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
-    designation = db.Column(db.String(100))
-    year = db.Column(db.Integer)
+    gender = db.Column(db.String(100))
+    level = db.Column(db.String(20))
+
+
     team_id = db.Column(db.Integer, db.ForeignKey('team.id'), nullable=False)
 
 class Match(db.Model):

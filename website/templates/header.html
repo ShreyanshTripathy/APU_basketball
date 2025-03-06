@@ -43,7 +43,6 @@
                             <ul class="dropdown-menu" aria-labelledby="adminDropdown">
                                 <li><a class="dropdown-item" href="{{ url_for('add_event.add_new_event') }}">Add Event</a></li>
                                 <li><a class="dropdown-item" href="{{ url_for('add_contact.add_contact_view') }}">Add Core Member</a></li>
-                                <li><a class="dropdown-item" href="{{ url_for('Teams.add_new_team') }}">Add Team</a></li>
                                 <li><a class="dropdown-item" href="{{ url_for('gallery.add_gallery') }}">Add to Gallery</a></li>
                                 <li><a class="dropdown-item" href="{{ url_for('admin_homepage.edit_homepage') }}">Edit Homepage</a></li>
                             </ul>
@@ -51,9 +50,6 @@
                         {% endif %}
                         {% endif %}
 
-                        {% if teams|length > 0 %}
-                        <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="{{ url_for('Teams.view_teams') }}">View Teams</a></li>
-                        {% endif %}
                     </ul>
                 </div>
             </div>

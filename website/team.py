@@ -1,54 +1,64 @@
 from flask import Blueprint, render_template, flash, redirect, url_for, request
 from flask_login import current_user, login_required
-from .models import Team
+from .models import Team, TeamMembers
 from . import db
 
 
 Teams = Blueprint('Teams', __name__)
 
 
-@Teams.route('/add_team', methods=['GET', 'POST'])
+@Teams.route('/event/<int:event_id>/add_team', methods=['GET', 'POST'])
 @login_required
-def add_new_team():
+def add_new_team(event_id):
     # Check if the current user is authorized (admin with id=1)
     if current_user.id != 1:
         flash("You do not have permission to access this page.", category='error')
         return redirect(url_for('views.home'))
+    
+    if request.method == 'GET':
+        return render_template("/Event Management/Team Management/team_edit.html", event_id=event_id)
 
     if request.method == 'POST':
-        # Collect form data
         team_name = request.form.get('team_name')
-        captain = request.form.get('captain')
-        member_names = request.form.getlist('member_name[]')  # Handles dynamic fields
+        captain_name = request.form.get('captain_name')
+        players_names = request.form.getlist('players_name[]')
+        players_sex = request.form.getlist('players_sex[]')
+        players_level = request.form.getlist('players_level[]')
 
-
-        # Validate input
-        if not team_name or not captain or not member_names or any(not member for member in member_names):
-            flash('Please fill out all fields!', 'error')
+        # Validate form data
+        if not team_name or not captain_name:
+            flash('Please fill in all required fields!', category='error')
             return redirect(url_for('Teams.add_new_team'))
-        else:
+        
+        # Check if a team with the same name already exists for the event
+        existing_team = Team.query.filter_by(team_name=team_name, event_id=event_id).first()
+        if existing_team:
+            flash('A team with this name already exists for this event!', category='error')
+            return redirect(url_for('Teams.add_new_team', event_id=event_id))
 
-            try:
+        # Create a new Team object
+        new_team = Team(team_name=team_name, captain_name=captain_name, admin_id=current_user.id, event_id=event_id)  # Assuming event_id is known
 
-                # Create and save a new Event
-                new_team = Team(
-                    member_name = member_name,
-                    team_name = team_name,
-                    captain = captain,
-                    admin_id=current_user.id  # Associate with the logged-in admin
-                )
-                db.session.add(new_team)
-                db.session.commit()
+        # Add the team to the session
+        db.session.add(new_team)
+        db.session.commit()  # Commit to get the team ID
 
-                # Redirect to the home page with a success message
-                flash('Team added successfully!', 'success')
-                return redirect(url_for('Teams.view_teams'))
+        # Add team members
+        for name, sex, level in zip(players_names, players_sex, players_level):
+            if name:  # Ensure the player name is not empty
+                new_member = TeamMembers(name=name, level=level, gender=sex, team_id=new_team.id)
+                db.session.add(new_member)
 
-            except Exception as e:
-                # Handle unexpected errors
-                flash(f"An error occurred: {str(e)}", category='error')
+        # Commit all changes
+        try:
+            db.session.commit()
+            flash('Team added successfully!', category='success')
+            return redirect(url_for('add_event.event_page', event_id=event_id))
+        except Exception as e:
+            db.session.rollback()
+            flash(f"An error occurred: {str(e)}", category='error')
+            return redirect(url_for('Teams.add_new_team'))
 
-    return render_template("add_team.html")
 
 @Teams.route('/view_teams', methods=['GET'])
 @login_required
@@ -56,6 +66,7 @@ def view_teams():
     # Fetch all teams from the database
     teams = Team.query.all()
     return render_template('view_teams.html', teams=teams)
+
 
 @Teams.route('/edit_team/<int:team_id>', methods=['GET', 'POST'])
 @login_required
@@ -69,21 +80,42 @@ def edit_team(team_id):
     team = Team.query.get_or_404(team_id)
 
     if request.method == 'POST':
+        # Extract form data
         team_name = request.form.get('team_name')
-        captain = request.form.get('captain')
-        member_name = ','.join(request.form.getlist('member_name[]'))
+        captain_name = request.form.get('captain_name')
+        players_names = request.form.getlist('players_name[]')
+        players_sex = request.form.getlist('players_sex[]')
+        players_level = request.form.getlist('players_level[]')
 
-        if not team_name or not captain or not member_name:
-            flash('Please fill in all fields!', category='error')
+        # Validate form data
+        if not team_name or not captain_name:
+            flash('Please fill in all required fields!', category='error')
         else:
+            # Check if a team with the same name already exists for the event, excluding the current team
+            existing_team = Team.query.filter(Team.team_name == team_name, Team.event_id == team.event_id, Team.id != team_id).first()
+            if existing_team:
+                flash('A team with this name already exists for this event!', category='error')
+                return redirect(url_for('Teams.edit_team', team_id=team_id))
+
             try:
+                # Update team details
                 team.team_name = team_name
-                team.captain = captain
-                team.member_name = member_name
+                team.captain = captain_name
+
+                # Clear existing team members
+                TeamMembers.query.filter_by(team_id=team.id).delete()
+
+                # Add updated team members
+                for name, sex, level in zip(players_names, players_sex, players_level):
+                    if name:  # Ensure the player name is not empty
+                        new_member = TeamMembers(name=name, designation=sex, year=level, team_id=team.id)
+                        db.session.add(new_member)
+
                 db.session.commit()
                 flash('Team updated successfully!', category='success')
                 return redirect(url_for('Teams.view_teams'))
             except Exception as e:
+                db.session.rollback()
                 flash(f"An error occurred: {str(e)}", category='error')
 
     return render_template('edit_team.html', team=team)
@@ -106,4 +138,3 @@ def delete_team(team_id):
         flash(f"An error occurred: {str(e)}", category='error')
 
     return redirect(url_for('Teams.view_teams'))
-

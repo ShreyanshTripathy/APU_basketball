@@ -210,178 +210,190 @@
 
 <!-- JavaScript for Sliding Animation -->
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const slider = document.querySelector(".event-slider");
-      const sliderContainer = document.querySelector(".event-slider-container");
-      const eventPanel = document.querySelector(".event-panel");
-      const prevButton = document.getElementById("prev-event");
-      const nextButton = document.getElementById("next-event");
-      const dotsContainer = document.getElementById("dots-container");
-    
-      // Save original event cards for cloning
-      let originalCards = Array.from(slider.querySelectorAll(".event-card"));
-      let visibleCards = 1;
-      let currentIndex = 0; // Will be set after clones are added
-      let autoScrollInterval;
-      let isAnimating = false;
-    
-      // Setup slider: clones for infinite effect
-      function setupSlider() {
-        slider.innerHTML = "";
-        // Append original cards
-        originalCards.forEach(card => {
-          slider.appendChild(card.cloneNode(true));
-        });
-    
-        // Calculate visible cards based on container width
-        const containerWidth = sliderContainer.offsetWidth;
-        const cardEl = slider.querySelector(".event-card");
-        const cardStyle = window.getComputedStyle(cardEl);
-        const cardWidth = cardEl.offsetWidth + parseInt(cardStyle.marginRight);
-        visibleCards = Math.floor(containerWidth / cardWidth);
-        if (visibleCards < 1) visibleCards = 1;
-    
-        // Clone last visibleCards and prepend them
-        const clonesBefore = [];
-        for (let i = originalCards.length - visibleCards; i < originalCards.length; i++) {
-          clonesBefore.push(originalCards[i].cloneNode(true));
+  document.addEventListener("DOMContentLoaded", function () {
+    const slider = document.querySelector(".event-slider");
+    const sliderContainer = document.querySelector(".event-slider-container");
+    const eventPanel = document.querySelector(".event-panel");
+    const prevButton = document.getElementById("prev-event");
+    const nextButton = document.getElementById("next-event");
+    const dotsContainer = document.getElementById("dots-container");
+  
+    // Save original event cards for cloning
+    let originalCards = Array.from(slider.querySelectorAll(".event-card"));
+    let visibleCards = 1;
+    let currentIndex = 0; // Will be set after clones are added
+    let autoScrollInterval;
+    let isAnimating = false;
+  
+    // Function to stop auto-scroll
+    function stopAutoScroll() {
+      clearInterval(autoScrollInterval);
+    }
+  
+    // Update slider transform based on currentIndex
+    function updateSliderPosition(animate = true) {
+      if (!animate) {
+        slider.style.transition = "none";
+      } else {
+        slider.style.transition = "transform 0.5s ease";
+      }
+      const cardEl = slider.querySelector(".event-card");
+      const cardStyle = window.getComputedStyle(cardEl);
+      const cardWidth = cardEl.offsetWidth + parseInt(cardStyle.marginRight);
+      const offset = -currentIndex * cardWidth;
+      slider.style.transform = `translateX(${offset}px)`;
+    }
+  
+    // Create dots based on number of slides (original cards / visibleCards)
+    function createDots() {
+      const totalSlides = Math.ceil(originalCards.length / visibleCards);
+      dotsContainer.innerHTML = "";
+      for (let i = 0; i < totalSlides; i++) {
+        const dot = document.createElement("span");
+        dot.classList.add("dot");
+        dot.addEventListener("click", () => goToSlide(i));
+        dotsContainer.appendChild(dot);
+      }
+      updateDots();
+    }
+  
+    // Update active dot
+    function updateDots() {
+      const dots = dotsContainer.querySelectorAll(".dot");
+      let activeSlide = Math.floor((currentIndex - visibleCards) / visibleCards);
+      if (activeSlide < 0) activeSlide = dots.length - 1;
+      if (activeSlide >= dots.length) activeSlide = 0;
+      dots.forEach(dot => dot.classList.remove("active"));
+      if (dots[activeSlide]) {
+        dots[activeSlide].classList.add("active");
+      }
+    }
+  
+    // Slide to next
+    function nextSlide() {
+      if (isAnimating) return;
+      isAnimating = true;
+      currentIndex++;
+      updateSliderPosition();
+      updateDots();
+      slider.addEventListener("transitionend", function handler() {
+        slider.removeEventListener("transitionend", handler);
+        if (currentIndex >= originalCards.length + visibleCards) {
+          currentIndex = visibleCards;
+          updateSliderPosition(false);
         }
-        clonesBefore.forEach(clone => {
-          slider.insertBefore(clone, slider.firstChild);
-        });
-    
-        // Clone first visibleCards and append them
-        const clonesAfter = [];
-        for (let i = 0; i < visibleCards; i++) {
-          clonesAfter.push(originalCards[i].cloneNode(true));
+        isAnimating = false;
+      });
+    }
+  
+    // Slide to previous
+    function prevSlide() {
+      if (isAnimating) return;
+      isAnimating = true;
+      currentIndex--;
+      updateSliderPosition();
+      updateDots();
+      slider.addEventListener("transitionend", function handler() {
+        slider.removeEventListener("transitionend", handler);
+        if (currentIndex < visibleCards) {
+          currentIndex = originalCards.length + visibleCards - 1;
+          updateSliderPosition(false);
         }
-        clonesAfter.forEach(clone => {
-          slider.appendChild(clone);
-        });
-    
-        // Set initial position to the start of original slides
-        currentIndex = visibleCards;
-        updateSliderPosition(false);
-        createDots();
-      }
-    
-      // Update slider transform based on currentIndex
-      function updateSliderPosition(animate = true) {
-        if (!animate) {
-          slider.style.transition = "none";
-        } else {
-          slider.style.transition = "transform 0.5s ease";
-        }
-        const cardEl = slider.querySelector(".event-card");
-        const cardStyle = window.getComputedStyle(cardEl);
-        const cardWidth = cardEl.offsetWidth + parseInt(cardStyle.marginRight);
-        const offset = -currentIndex * cardWidth;
-        slider.style.transform = `translateX(${offset}px)`;
-      }
-    
-      // Create dots based on number of slides (original cards / visibleCards)
-      function createDots() {
-        const totalSlides = Math.ceil(originalCards.length / visibleCards);
-        dotsContainer.innerHTML = "";
-        for (let i = 0; i < totalSlides; i++) {
-          const dot = document.createElement("span");
-          dot.classList.add("dot");
-          dot.addEventListener("click", () => goToSlide(i));
-          dotsContainer.appendChild(dot);
-        }
-        updateDots();
-      }
-    
-      // Update active dot
-      function updateDots() {
-        const dots = dotsContainer.querySelectorAll(".dot");
-        // Determine the current slide (0-indexed)
-        let activeSlide = Math.floor((currentIndex - visibleCards) / visibleCards);
-        if (activeSlide < 0) activeSlide = dots.length - 1;
-        if (activeSlide >= dots.length) activeSlide = 0;
-        dots.forEach(dot => dot.classList.remove("active"));
-        if (dots[activeSlide]) {
-          dots[activeSlide].classList.add("active");
-        }
-      }
-    
-      // Slide to next
-      function nextSlide() {
-        if (isAnimating) return;
-        isAnimating = true;
-        currentIndex++;
-        updateSliderPosition();
-        updateDots();
-        slider.addEventListener("transitionend", function handler() {
-          slider.removeEventListener("transitionend", handler);
-          // If reached cloned end, jump to original first slide
-          if (currentIndex >= originalCards.length + visibleCards) {
-            currentIndex = visibleCards;
-            updateSliderPosition(false);
-          }
-          isAnimating = false;
-        });
-      }
-    
-      // Slide to previous
-      function prevSlide() {
-        if (isAnimating) return;
-        isAnimating = true;
-        currentIndex--;
-        updateSliderPosition();
-        updateDots();
-        slider.addEventListener("transitionend", function handler() {
-          slider.removeEventListener("transitionend", handler);
-          // If reached cloned beginning, jump to original end
-          if (currentIndex < visibleCards) {
-            currentIndex = originalCards.length + visibleCards - 1;
-            updateSliderPosition(false);
-          }
-          isAnimating = false;
-        });
-      }
-    
-      // Jump to a specific slide (dot click)
-      function goToSlide(slideIndex) {
-        if (isAnimating) return;
-        isAnimating = true;
-        currentIndex = visibleCards + slideIndex * visibleCards;
-        updateSliderPosition();
-        updateDots();
-        slider.addEventListener("transitionend", function handler() {
-          slider.removeEventListener("transitionend", handler);
-          isAnimating = false;
-        });
-      }
-    
-      // Auto-scroll setup
-      function startAutoScroll() {
-        autoScrollInterval = setInterval(nextSlide, 2000);
-      }
-      function stopAutoScroll() {
-        clearInterval(autoScrollInterval);
-      }
-    
-      // Pause auto-scroll and show arrow buttons on mouse enter
-      eventPanel.addEventListener("mouseenter", () => {
+        isAnimating = false;
+      });
+    }
+  
+    // Jump to a specific slide (dot click)
+    function goToSlide(slideIndex) {
+      if (isAnimating) return;
+      isAnimating = true;
+      currentIndex = visibleCards + slideIndex * visibleCards;
+      updateSliderPosition();
+      updateDots();
+      slider.addEventListener("transitionend", function handler() {
+        slider.removeEventListener("transitionend", handler);
+        isAnimating = false;
+      });
+    }
+  
+    // Auto-scroll setup
+    function startAutoScroll() {
+      autoScrollInterval = setInterval(nextSlide, 2000);
+    }
+  
+    // Setup slider: clones for infinite effect
+    function setupSlider() {
+      slider.innerHTML = "";
+      // Append original cards
+      originalCards.forEach(card => {
+        slider.appendChild(card.cloneNode(true));
+      });
+  
+      // Calculate visible cards based on container width
+      const containerWidth = sliderContainer.offsetWidth;
+      const cardEl = slider.querySelector(".event-card");
+      const cardStyle = window.getComputedStyle(cardEl);
+      const cardWidth = cardEl.offsetWidth + parseInt(cardStyle.marginRight);
+      visibleCards = Math.floor(containerWidth / cardWidth);
+      if (visibleCards < 1) visibleCards = 1;
+  
+      // If there aren’t enough events to require scrolling,
+      // hide navigation arrows and dots, and disable auto-scroll.
+      if (originalCards.length <= visibleCards) {
+        prevButton.style.display = "none";
+        nextButton.style.display = "none";
+        dotsContainer.style.display = "none";
         stopAutoScroll();
+        return; // Exit the setup as no slider functionality is needed.
+      } else {
+        prevButton.style.display = "block";
+        nextButton.style.display = "block";
+        dotsContainer.style.display = "block";
+      }
+  
+      // Clone last visibleCards and prepend them
+      const clonesBefore = [];
+      for (let i = originalCards.length - visibleCards; i < originalCards.length; i++) {
+        clonesBefore.push(originalCards[i].cloneNode(true));
+      }
+      clonesBefore.forEach(clone => {
+        slider.insertBefore(clone, slider.firstChild);
       });
-      // Resume auto-scroll and hide arrow buttons when mouse leaves
-      eventPanel.addEventListener("mouseleave", () => {
-        startAutoScroll();
+  
+      // Clone first visibleCards and append them
+      const clonesAfter = [];
+      for (let i = 0; i < visibleCards; i++) {
+        clonesAfter.push(originalCards[i].cloneNode(true));
+      }
+      clonesAfter.forEach(clone => {
+        slider.appendChild(clone);
       });
-    
-      // Button events
-      nextButton.addEventListener("click", nextSlide);
-      prevButton.addEventListener("click", prevSlide);
-    
-      // Recalculate layout on window resize
-      window.addEventListener("resize", setupSlider);
-    
-      // Initial setup
-      setupSlider();
+  
+      // Set initial position to the start of original slides
+      currentIndex = visibleCards;
+      updateSliderPosition(false);
+      createDots();
+    }
+  
+    // Event listeners for auto-scroll pause on hover
+    eventPanel.addEventListener("mouseenter", stopAutoScroll);
+    eventPanel.addEventListener("mouseleave", startAutoScroll);
+  
+    // Button events
+    nextButton.addEventListener("click", nextSlide);
+    prevButton.addEventListener("click", prevSlide);
+  
+    // Recalculate layout on window resize
+    window.addEventListener("resize", setupSlider);
+  
+    // Initial setup
+    setupSlider();
+    // Start auto-scroll only if enough events exist
+    if (originalCards.length > visibleCards) {
       startAutoScroll();
-    });
+    }
+  });
+  
     </script>
     
     

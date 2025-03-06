@@ -3,7 +3,7 @@ from werkzeug.utils import secure_filename
 from flask_login import current_user, login_required
 import os
 from datetime import datetime
-from .models import Event,GalleryImage, GalleryAlbum
+from .models import Event,GalleryImage, GalleryAlbum, Team
 from . import db
 
 add_event = Blueprint('add_event', __name__)
@@ -153,7 +153,10 @@ def event_page(event_id):
         abort(404)
     # Query all images from albums that are associated with this event
     gallery_images = GalleryImage.query.join(GalleryAlbum).filter(GalleryAlbum.event_id == event.id).all()
-    return render_template('event_page.html', event=event, gallery_images=gallery_images)
+    teams = Team.query.filter_by(event_id=event_id).all()
+    team_data = {t.team_name: {"captain": t.captain_name, "members": [(m.name, m.level, m.gender) for m in t.members]} for t in teams}
+
+    return render_template('event_page.html', event=event, gallery_images=gallery_images, team=team_data)
 
 
 

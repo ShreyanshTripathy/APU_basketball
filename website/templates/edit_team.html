@@ -23,8 +23,8 @@
                 type="text" 
                 class="form-control" 
                 id="captain" 
-                name="captain" 
-                value="{{ team.captain }}" 
+                name="captain_name" 
+                value="{{ team.captain_name }}" 
                 required>
         </div>
 
@@ -32,25 +32,29 @@
         <div class="mb-3">
             <label class="form-label">Team Members</label>
             <div id="members-container">
-                {% for member in team.member_name.split(',') %}
+                {% for member in team.members %}
                     <div class="input-group mb-2">
                         <input 
                             type="text" 
                             class="form-control" 
-                            name="member_name[]" 
-                            value="{{ member }}" 
+                            name="players_name[]" 
+                            value="{{ member.name }}" 
+                            placeholder="Enter Member Name" 
                             required>
-                        <button 
-                            type="button" 
-                            class="btn btn-outline-danger remove-member" 
-                            onclick="removeMember(this)">Remove</button>
+                        <select name="players_sex[]" class="form-select">
+                            <option value="Male" {% if member.gender == 'Male' %} selected {% endif %}>Male</option>
+                            <option value="Non-Male" {% if member.gender == 'Non-Male' %} selected {% endif %}>Non-Male</option>
+                        </select>
+                        <select name="players_level[]" class="form-select">
+                            <option value="beginner" {% if member.level == 'beginner' %} selected {% endif %}>Beginner</option>
+                            <option value="intermediate" {% if member.level == 'intermediate' %} selected {% endif %}>Intermediate</option>
+                            <option value="advanced" {% if member.level == 'advanced' %} selected {% endif %}>Advanced</option>
+                        </select>
+                        <button type="button" class="btn btn-outline-danger remove-member" onclick="removeMember(this)">Remove</button>
                     </div>
                 {% endfor %}
             </div>
-            <button 
-                type="button" 
-                class="btn btn-outline-primary" 
-                onclick="addMember()">Add Member</button>
+            <button type="button" class="btn btn-outline-primary" onclick="addMember()">Add Member</button>
         </div>
 
         <!-- Submit Button -->
@@ -63,16 +67,17 @@
         const container = document.getElementById('members-container');
         const memberInput = `
             <div class="input-group mb-2">
-                <input 
-                    type="text" 
-                    class="form-control" 
-                    name="member_name[]" 
-                    placeholder="Enter Member Name" 
-                    required>
-                <button 
-                    type="button" 
-                    class="btn btn-outline-danger remove-member" 
-                    onclick="removeMember(this)">Remove</button>
+                <input type="text" class="form-control" name="players_name[]" placeholder="Enter Member Name" required>
+                <select name="players_sex[]" class="form-select">
+                    <option value="Male">Male</option>
+                    <option value="Non-Male">Non-Male</option>
+                </select>
+                <select name="players_level[]" class="form-select">
+                    <option value="beginner">Beginner</option>
+                    <option value="intermediate">Intermediate</option>
+                    <option value="advanced">Advanced</option>
+                </select>
+                <button type="button" class="btn btn-outline-danger remove-member" onclick="removeMember(this)">Remove</button>
             </div>`;
         container.insertAdjacentHTML('beforeend', memberInput);
     }

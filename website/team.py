@@ -90,33 +90,43 @@ def edit_team(team_id):
         # Validate form data
         if not team_name or not captain_name:
             flash('Please fill in all required fields!', category='error')
-        else:
-            # Check if a team with the same name already exists for the event, excluding the current team
-            existing_team = Team.query.filter(Team.team_name == team_name, Team.event_id == team.event_id, Team.id != team_id).first()
-            if existing_team:
-                flash('A team with this name already exists for this event!', category='error')
-                return redirect(url_for('Teams.edit_team', team_id=team_id))
+            return redirect(url_for('Teams.edit_team', team_id=team_id))
 
-            try:
-                # Update team details
-                team.team_name = team_name
-                team.captain = captain_name
+        # Check if a team with the same name already exists for the event, excluding the current team
+        existing_team = Team.query.filter(
+            Team.team_name == team_name, 
+            Team.event_id == team.event_id, 
+            Team.id != team_id
+        ).first()
+        if existing_team:
+            flash('A team with this name already exists for this event!', category='error')
+            return redirect(url_for('Teams.edit_team', team_id=team_id))
 
-                # Clear existing team members
-                TeamMembers.query.filter_by(team_id=team.id).delete()
+        try:
+            # Update team details
+            team.team_name = team_name
+            team.captain_name = captain_name  # Fix incorrect field name
 
-                # Add updated team members
-                for name, sex, level in zip(players_names, players_sex, players_level):
-                    if name:  # Ensure the player name is not empty
-                        new_member = TeamMembers(name=name, designation=sex, year=level, team_id=team.id)
-                        db.session.add(new_member)
+            # Clear existing team members
+            TeamMembers.query.filter_by(team_id=team.id).delete()
 
-                db.session.commit()
-                flash('Team updated successfully!', category='success')
-                return redirect(url_for('Teams.view_teams'))
-            except Exception as e:
-                db.session.rollback()
-                flash(f"An error occurred: {str(e)}", category='error')
+            # Add updated team members
+            for name, sex, level in zip(players_names, players_sex, players_level):
+                if name:  # Ensure the player name is not empty
+                    new_member = TeamMembers(
+                        name=name,  
+                        gender=sex,  # Fix: use 'gender' instead of 'designation'
+                        level=level,  # Fix: use 'level' instead of 'year'
+                        team_id=team.id
+                    )
+                    db.session.add(new_member)
+
+            db.session.commit()
+            flash('Team updated successfully!', category='success')
+            return redirect(url_for('Teams.view_teams'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f"An error occurred: {str(e)}", category='error')
 
     return render_template('edit_team.html', team=team)
 

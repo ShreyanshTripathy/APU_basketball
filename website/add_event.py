@@ -151,12 +151,22 @@ def event_page(event_id):
     event = Event.query.get_or_404(event_id)
     if event.end_date and event.end_date <= datetime.now().date():
         abort(404)
-    # Query all images from albums that are associated with this event
+
+    # Query all images from albums associated with this event
     gallery_images = GalleryImage.query.join(GalleryAlbum).filter(GalleryAlbum.event_id == event.id).all()
+
+    # Fetch teams and include team_id
     teams = Team.query.filter_by(event_id=event_id).all()
-    team_data = {t.team_name: {"captain": t.captain_name, "members": [(m.name, m.level, m.gender) for m in t.members]} for t in teams}
+    team_data = {
+        t.team_name: {
+            "team_id": t.id,  # Add team_id here
+            "captain": t.captain_name,
+            "members": [(m.name, m.level, m.gender) for m in t.members]  
+        } for t in teams
+    }
 
     return render_template('event_page.html', event=event, gallery_images=gallery_images, team=team_data)
+
 
 
 

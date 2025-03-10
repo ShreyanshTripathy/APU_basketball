@@ -158,8 +158,9 @@
         </ul>
 
         {% if current_user.is_authenticated and current_user.id == event.admin_id %}
+        {% if event.is_league %}
         <a href="{{ url_for('Teams.add_new_team', event_id=event.id) }}" class="btn btn-primary mt-3">Add Team</a>
-        
+        {%endif%}
         <div class="mt-3">
             <a href="{{ url_for('add_event.edit_event', event_id=event.id) }}" class="btn btn-warning">Edit Event</a>
             <form action="{{ url_for('add_event.delete_event', event_id=event.id) }}" method="POST" style="display: inline;">

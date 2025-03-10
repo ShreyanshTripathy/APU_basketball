@@ -17,11 +17,14 @@ class Event(db.Model):
     start_date = db.Column(db.Date, default=func.current_date())
     end_date = db.Column(db.Date, default=func.current_date())
     link = db.Column(db.String(255), nullable=True)
+    is_league = db.Column(db.Boolean, default=False)
     admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'), nullable=False)
-
+    
+    # Relationships
     matches = db.relationship('Match', backref='event', lazy=True)
     teams = db.relationship('Team', backref='event', lazy=True)
     galleries = db.relationship('GalleryAlbum', backref='event', lazy=True)
+
 
 class CoreMembers(db.Model):
     id = db.Column(db.Integer, primary_key=True)

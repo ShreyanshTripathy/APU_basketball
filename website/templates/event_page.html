@@ -157,9 +157,9 @@
         <a href="{{ url_for('views.home') }}" class="btn btn-primary mt-3">Back to Home</a>
         </ul>
 
+        {% if current_user.is_authenticated and current_user.id == event.admin_id %}
         <a href="{{ url_for('Teams.add_new_team', event_id=event.id) }}" class="btn btn-primary mt-3">Add Team</a>
-         
-        {% if current_user.is_authenticated and current_user.id == 1 %}
+        
         <div class="mt-3">
             <a href="{{ url_for('add_event.edit_event', event_id=event.id) }}" class="btn btn-warning">Edit Event</a>
             <form action="{{ url_for('add_event.delete_event', event_id=event.id) }}" method="POST" style="display: inline;">
@@ -170,14 +170,119 @@
       </div>
     </div>
 
-    <div class="scores">
-        <!-- Scores section can be added here if needed -->
+    
+    <br>
+    {% if event.is_league %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>Match Fixtures</h3>
+        {% if current_user.is_authenticated and current_user.id == event.admin_id %}
+        <div>
+            <a href="{{ url_for('views.match_fixtures', event_id=event.id) }}" class="btn btn-primary">Add Matches</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Existing Matches -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Team A</th>
+                            <th>Team B</th>
+                            <th>Date & Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for match in event.matches %}
+                        <tr>
+                            <td>
+                                <div class="{% if match.team_a_score is not none and match.team_b_score is not none %}{% if match.team_a_score > match.team_b_score %}bg-success text-white{% elif match.team_a_score < match.team_b_score %}bg-danger text-white{% endif %}{% endif %} p-2 rounded">
+                                    <div class="fw-bold">{{ match.team_a.team_name }}</div>
+                                    <div class="small mt-1">
+                                        <span class="score-display-a-{{ match.id }}">
+                                            {% if match.team_a_score is not none %}
+                                                Score: {{ match.team_a_score }}
+                                            {% else %}
+                                                Not played
+                                            {% endif %}
+                                        </span>
+                                        {% if current_user.is_authenticated and current_user.id == event.admin_id %}
+                                        <button type="button" class="btn btn-sm btn-outline-{% if match.team_a_score is not none and match.team_b_score is not none %}{% if match.team_a_score > match.team_b_score %}light{% elif match.team_a_score < match.team_b_score %}light{% else %}primary{% endif %}{% else %}primary{% endif %} ms-2" 
+                                                onclick="updateScore({{ match.id }}, 'a', {{ match.team_a_score or 'null' }})">
+                                            Update Score
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="{% if match.team_a_score is not none and match.team_b_score is not none %}{% if match.team_b_score > match.team_a_score %}bg-success text-white{% elif match.team_b_score < match.team_a_score %}bg-danger text-white{% endif %}{% endif %} p-2 rounded">
+                                    <div class="fw-bold">{{ match.team_b.team_name }}</div>
+                                    <div class="small mt-1">
+                                        <span class="score-display-b-{{ match.id }}">
+                                            {% if match.team_b_score is not none %}
+                                                Score: {{ match.team_b_score }}
+                                            {% else %}
+                                                Not played
+                                            {% endif %}
+                                        </span>
+                                        {% if current_user.is_authenticated and current_user.id == event.admin_id %}
+                                        <button type="button" class="btn btn-sm btn-outline-{% if match.team_a_score is not none and match.team_b_score is not none %}{% if match.team_b_score > match.team_a_score %}light{% elif match.team_b_score < match.team_a_score %}light{% else %}primary{% endif %}{% else %}primary{% endif %} ms-2" 
+                                                onclick="updateScore({{ match.id }}, 'b', {{ match.team_b_score or 'null' }})">
+                                            Update Score
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                {{ match.date_time.strftime('%Y-%m-%d %H:%M') }}
+                                {% if current_user.is_authenticated and current_user.id == event.admin_id %}
+                                <div class="mt-2">
+                                    <a href="{{ url_for('views.edit_match', match_id=match.id) }}" class="btn btn-warning btn-sm">Edit Match</a>
+                                    <form action="{{ url_for('views.delete_match', match_id=match.id) }}" method="POST" style="display: inline;">
+                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this match?');">Delete Match</button>
+                                    </form>
+                                </div>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Score Update Modal -->
+    <div class="modal fade" id="scoreUpdateModal" tabindex="-1">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Update Score</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="scoreUpdateForm">
+                        <input type="hidden" id="matchId" name="match_id">
+                        <input type="hidden" id="teamType" name="team">
+                        <div class="mb-3">
+                            <label for="score" class="form-label">Score</label>
+                            <input type="number" class="form-control" id="score" name="score" required min="0">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update Score</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 
     <br>
     
     <div class="teams">
-      <h3>Teams</h3>
+      <h3>All Teams</h3>
       <div class="row">
           {% for team_name, team_info in team.items() %}
               <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
@@ -231,6 +336,7 @@
           {% endfor %}
       </div>
   </div>
+  {% endif %}
     
 
     <!-- Event Gallery -->
@@ -428,5 +534,59 @@
   document.getElementById("modalNext").addEventListener("click", nextSlide);
   document.getElementById("modalPrev").addEventListener("click", prevSlide);
 </script>
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Score update functionality
+    const scoreModal = new bootstrap.Modal(document.getElementById('scoreUpdateModal'));
+    const scoreForm = document.getElementById('scoreUpdateForm');
+
+    window.updateScore = function(matchId, team, currentScore) {
+        document.getElementById('matchId').value = matchId;
+        document.getElementById('teamType').value = team;
+        document.getElementById('score').value = currentScore !== null ? currentScore : '';
+        scoreModal.show();
+    }
+
+    scoreForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(scoreForm);
+        const matchId = formData.get('match_id');
+        const team = formData.get('team');
+        const score = formData.get('score');
+
+        fetch(`/update-score/${matchId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                team: team,
+                score: score,
+                event_id: {{ event.id }}
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update the score display
+                const scoreDisplay = document.querySelector(`.score-display-${team}-${matchId}`);
+                scoreDisplay.textContent = `Score: ${score}`;
+                
+                // Refresh the page to update the highlighting
+                location.reload();
+            } else {
+                alert('Error updating score: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error updating score');
+        });
+    });
+});
+</script>
+{% endblock %}
 
 {% include 'footer.html' %}

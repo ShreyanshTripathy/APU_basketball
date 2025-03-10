@@ -27,6 +27,8 @@ def add_new_event():
         start_date_str = request.form.get('start_date')
         end_date_str = request.form.get('end_date')
         image = request.files.get('image')
+        # NEW: Determine if it's a league event (checkbox returns a truthy value if checked)
+        is_league = True if request.form.get('is_league') else False
 
         if not title or not description or not image:
             flash('Please fill in all fields!', category='error')
@@ -47,7 +49,7 @@ def add_new_event():
             return redirect(url_for('add_event.add_new_event'))
 
         image_filename = secure_filename(image.filename)
-        image_path = os.path.join('website', 'static', 'assets', 'img','Event', image_filename)
+        image_path = os.path.join('website', 'static', 'assets', 'img', 'Event', image_filename)
         os.makedirs(os.path.dirname(image_path), exist_ok=True)
 
         try:
@@ -59,7 +61,8 @@ def add_new_event():
                 start_date=start_date,
                 end_date=end_date,
                 admin_id=current_user.id,
-                link=link  # Save the link
+                link=link,
+                is_league=is_league    # NEW FIELD ASSIGNMENT
             )
             db.session.add(new_event)
             db.session.commit()
@@ -86,7 +89,7 @@ def edit_event(event_id):
     if request.method == 'POST':
         title = request.form.get('title')
         description = request.form.get('description')
-        link = request.form.get('link')  # Capture the link value
+        link = request.form.get('link')  # Capture the event link
         start_date_str = request.form.get('start_date')
         end_date_str = request.form.get('end_date')
         image = request.files.get('image')
@@ -111,9 +114,12 @@ def edit_event(event_id):
         event.start_date = start_date
         event.end_date = end_date
 
+        # Update the league event status based on the checkbox value.
+        event.is_league = True if request.form.get('is_league') else False
+
         if image and allowed_file(image.filename):
             image_filename = secure_filename(image.filename)
-            image_path = os.path.join('website', 'static', 'assets', 'img','Event', image_filename)
+            image_path = os.path.join('website', 'static', 'assets', 'img', 'Event', image_filename)
             os.makedirs(os.path.dirname(image_path), exist_ok=True)
             image.save(image_path)
             event.img_url = image_filename

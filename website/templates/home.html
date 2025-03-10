@@ -377,7 +377,11 @@
   
     // Event listeners for auto-scroll pause on hover
     eventPanel.addEventListener("mouseenter", stopAutoScroll);
-    eventPanel.addEventListener("mouseleave", startAutoScroll);
+    eventPanel.addEventListener("mouseleave", function() {
+      if (originalCards.length > visibleCards) {
+        startAutoScroll();
+      }
+    });
   
     // Button events
     nextButton.addEventListener("click", nextSlide);
@@ -394,7 +398,7 @@
     }
   });
   
-    </script>
+</script>
     
     
     

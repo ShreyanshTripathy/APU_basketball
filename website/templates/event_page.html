@@ -256,28 +256,31 @@
         </div>
     </div>
 
-    <!-- Score Update Modal -->
-    <div class="modal fade" id="scoreUpdateModal" tabindex="-1">
-        <div class="modal-dialog modal-sm">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Update Score</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="scoreUpdateForm">
-                        <input type="hidden" id="matchId" name="match_id">
-                        <input type="hidden" id="teamType" name="team">
-                        <div class="mb-3">
-                            <label for="score" class="form-label">Score</label>
-                            <input type="number" class="form-control" id="score" name="score" required min="0">
-                        </div>
-                        <button type="submit" class="btn btn-primary">Update Score</button>
-                    </form>
-                </div>
-            </div>
-        </div>
+    <!-- Updated Score Update Modal -->
+<div class="modal fade" id="scoreUpdateModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">Update Score</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="scoreUpdateForm" class="p-4">
+          <input type="hidden" id="matchId" name="match_id">
+          <input type="hidden" id="teamType" name="team">
+          <div class="mb-3">
+            <label for="score" class="form-label">Score</label>
+            <input type="number" class="form-control form-control-lg" id="score" name="score" placeholder="Enter new score" required min="0">
+          </div>
+          <div class="text-end">
+            <button type="submit" class="btn btn-success">Update Score</button>
+          </div>
+        </form>
+      </div>
     </div>
+  </div>
+</div>
+
 
     <br>
     

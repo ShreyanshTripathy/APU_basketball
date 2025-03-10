@@ -3,49 +3,93 @@
 <div class="container mt-4">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card">
+            <!-- Main Card -->
+            <div class="card shadow-sm">
                 <div class="card-header">
                     <h2 class="mb-0">Edit Team Details</h2>
                 </div>
                 <div class="card-body">
                     <form action="{{ url_for('Teams.add_new_team', event_id=event_id) }}" method="post">
+                        
+                        <!-- Team Name -->
                         <div class="mb-3">
                             <label for="team-name" class="form-label">Team Name</label>
-                            <input type="text" id="team-name" name="team_name" 
-                                   class="form-control" placeholder="Enter Team Name" required>
+                            <input 
+                                type="text" 
+                                id="team-name" 
+                                name="team_name" 
+                                class="form-control" 
+                                placeholder="Enter Team Name" 
+                                required
+                            >
                         </div>
 
+                        <!-- Captain Name -->
                         <div class="mb-3">
                             <label for="captain-name" class="form-label">Captain Name</label>
-                            <input type="text" id="captain-name" name="captain_name" 
-                                   class="form-control" placeholder="Enter Captain Name" required>
+                            <input 
+                                type="text" 
+                                id="captain-name" 
+                                name="captain_name" 
+                                class="form-control" 
+                                placeholder="Enter Captain Name" 
+                                required
+                            >
                         </div>
 
+                        <!-- Players -->
                         <div class="mb-3">
                             <label class="form-label">Players</label>
                             <div id="players-container">
                                 <!-- Initial player entry -->
-                                <div class="player-entry card mb-3">
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-4 mb-2">
-                                                <input type="text" name="players_name[]" 
-                                                       class="form-control" placeholder="Player Name">
+                                <div class="player-entry card shadow-sm mb-2">
+                                    <div class="card-body p-2">
+                                        <!-- Use a row with columns that total 12 to fill the container -->
+                                        <div class="row g-2 align-items-end">
+                                            <!-- Player Name (4 columns) -->
+                                            <div class="col-md-4">
+                                                <input 
+                                                    type="text" 
+                                                    name="players_name[]" 
+                                                    class="form-control" 
+                                                    placeholder="Player Name" 
+                                                    required
+                                                >
                                             </div>
-                                            <div class="col-md-4 mb-2">
-                                                <select name="players_sex[]" class="form-select">
+                                            <!-- Gender (3 columns) -->
+                                            <div class="col-md-3">
+                                                <select 
+                                                    name="players_sex[]" 
+                                                    class="form-select" 
+                                                    required
+                                                >
                                                     <option value="">Gender</option>
                                                     <option value="Male">Male</option>
                                                     <option value="Non-Male">Non-Male</option>
                                                 </select>
                                             </div>
-                                            <div class="col-md-4 mb-2">
-                                                <select name="players_level[]" class="form-select">
+                                            <!-- Level (3 columns) -->
+                                            <div class="col-md-3">
+                                                <select 
+                                                    name="players_level[]" 
+                                                    class="form-select" 
+                                                    required
+                                                >
                                                     <option value="">Level</option>
                                                     <option value="beginner">Beginner</option>
                                                     <option value="intermediate">Intermediate</option>
                                                     <option value="advanced">Advanced</option>
                                                 </select>
+                                            </div>
+                                            <!-- Remove Button (2 columns) -->
+                                            <div class="col-md-2 text-end">
+                                                <button 
+                                                    type="button" 
+                                                    class="btn btn-outline-danger" 
+                                                    onclick="removePlayer(this)"
+                                                >
+                                                    Remove
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
@@ -53,56 +97,89 @@
                             </div>
                         </div>
 
+                        <!-- Add More Players Button -->
                         <div class="mb-3">
-                            <button type="button" class="btn btn-secondary" onclick="addPlayerField()">
-                                <i class="fas fa-plus"></i> Add More Players
+                            <button 
+                                type="button" 
+                                class="btn btn-secondary" 
+                                onclick="addPlayerField()"
+                            >
+                                <i class="fas fa-plus me-1"></i> Add More Players
                             </button>
                         </div>
                         
-                        <br>
-
+                        <!-- Save Changes -->
                         <div class="d-grid">
                             <button type="submit" class="btn btn-primary">Save Changes</button>
                         </div>
                     </form>
                 </div>
             </div>
+            <!-- End Main Card -->
         </div>
     </div>
 </div>
 
 <script>
+    // Dynamically add a new player entry, same 12-column layout
     function addPlayerField() {
         const playersContainer = document.getElementById("players-container");
         const playerEntry = document.createElement("div");
-        playerEntry.classList.add("player-entry", "card", "mb-3");
-        
+        playerEntry.classList.add("player-entry", "card", "shadow-sm", "mb-2");
+
         playerEntry.innerHTML = `
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-4 mb-2">
-                        <input type="text" name="players_name[]" 
-                               class="form-control" placeholder="Player Name">
+            <div class="card-body p-2">
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-4">
+                        <input 
+                            type="text" 
+                            name="players_name[]" 
+                            class="form-control" 
+                            placeholder="Player Name" 
+                            required
+                        >
                     </div>
-                    <div class="col-md-4 mb-2">
-                        <select name="players_sex[]" class="form-select">
-                            <option value="">Select Gender</option>
+                    <div class="col-md-3">
+                        <select 
+                            name="players_sex[]" 
+                            class="form-select" 
+                            required
+                        >
+                            <option value="">Gender</option>
                             <option value="Male">Male</option>
                             <option value="Non-Male">Non-Male</option>
                         </select>
                     </div>
-                    <div class="col-md-4 mb-2">
-                        <select name="players_level[]" class="form-select">
-                            <option value="">Select Level</option>
+                    <div class="col-md-3">
+                        <select 
+                            name="players_level[]" 
+                            class="form-select" 
+                            required
+                        >
+                            <option value="">Level</option>
                             <option value="beginner">Beginner</option>
                             <option value="intermediate">Intermediate</option>
                             <option value="advanced">Advanced</option>
                         </select>
+                    </div>
+                    <div class="col-md-2 text-end">
+                        <button 
+                            type="button" 
+                            class="btn btn-outline-danger" 
+                            onclick="removePlayer(this)"
+                        >
+                            Remove
+                        </button>
                     </div>
                 </div>
             </div>
         `;
         
         playersContainer.appendChild(playerEntry);
+    }
+
+    // Remove the entire player entry card
+    function removePlayer(button) {
+        button.closest('.player-entry').remove();
     }
 </script>

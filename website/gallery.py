@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from werkzeug.utils import secure_filename
 from .models import GalleryAlbum, GalleryImage, Event
 from . import db
@@ -25,9 +25,9 @@ def add_gallery():
     if current_user.id != 1:
         flash('Only admin can add gallery albums.', 'danger')
         return redirect(url_for('gallery.gallery_view'))
-    
+
     events = Event.query.all()
-    
+
     if request.method == 'POST':
         title = request.form.get('title')
         description = request.form.get('description')
@@ -35,11 +35,11 @@ def add_gallery():
         if event_id == "":
             event_id = None
         images = request.files.getlist('images')
-        
+
         if not title or not description or not images or len(images) == 0:
             flash('Title, description, and at least one image are required!', 'danger')
             return redirect(url_for('gallery.add_gallery'))
-        
+
         # Create the album first.
         new_album = GalleryAlbum(
             title=title,
@@ -48,10 +48,10 @@ def add_gallery():
         )
         db.session.add(new_album)
         db.session.commit()
-        
-        upload_folder = os.path.join('website', 'static', 'assets', 'img', 'Gallery')
+
+        upload_folder = os.path.join(current_app.root_path,'static', 'assets', 'img', 'Gallery')
         os.makedirs(upload_folder, exist_ok=True)
-        
+
         for image in images:
             if image and allowed_file(image.filename):
                 image_filename = secure_filename(image.filename)
@@ -67,7 +67,7 @@ def add_gallery():
         db.session.commit()
         flash('Gallery album created successfully!', 'success')
         return redirect(url_for('gallery.gallery_view'))
-    
+
     return render_template('add_gallery.html', events=events)
 
 # Album detail: view all images in an album
@@ -83,10 +83,10 @@ def edit_gallery(album_id):
     if current_user.id != 1:
         flash('Only admin can edit gallery albums.', 'danger')
         return redirect(url_for('gallery.gallery_view'))
-    
+
     album = GalleryAlbum.query.get_or_404(album_id)
     events = Event.query.all()
-    
+
     if request.method == 'POST':
         album.title = request.form.get('title')
         album.description = request.form.get('description')
@@ -95,12 +95,12 @@ def edit_gallery(album_id):
             album.event_id = None
         else:
             album.event_id = event_id
-        
+
         # Handle additional image uploads (optional)
         new_images = request.files.getlist('images')
-        upload_folder = os.path.join('website', 'static', 'assets', 'img', 'Gallery')
+        upload_folder = os.path.join(current_app.root_path,'static', 'assets', 'img', 'Gallery')
         os.makedirs(upload_folder, exist_ok=True)
-        
+
         for image in new_images:
             if image and allowed_file(image.filename):
                 image_filename = secure_filename(image.filename)
@@ -114,7 +114,7 @@ def edit_gallery(album_id):
         db.session.commit()
         flash('Gallery album updated successfully!', 'success')
         return redirect(url_for('gallery.gallery_detail', album_id=album.id))
-    
+
     return render_template('edit_gallery_album.html', album=album, events=events)
 
 # Delete an entire album (and its images)
@@ -124,10 +124,10 @@ def delete_gallery(album_id):
     if current_user.id != 1:
         flash('Only admin can delete gallery albums.', 'danger')
         return redirect(url_for('gallery.gallery_view'))
-    
+
     album = GalleryAlbum.query.get_or_404(album_id)
     for image in album.images:
-        image_path = os.path.join('website', 'static', 'assets', 'img','Gallery', image.image_url)
+        image_path = os.path.join(current_app.root_path,'static', 'assets', 'img','Gallery', image.image_url)
         if os.path.exists(image_path):
             os.remove(image_path)
         db.session.delete(image)
@@ -143,10 +143,10 @@ def delete_gallery_image(image_id):
     if current_user.id != 1:
         flash('Only admin can delete images.', 'danger')
         return redirect(url_for('gallery.gallery_view'))
-    
+
     image = GalleryImage.query.get_or_404(image_id)
     album_id = image.album_id
-    image_path = os.path.join('website', 'static', 'assets', 'img','Gallery', image.image_url)
+    image_path = os.path.join(current_app.root_path,'static', 'assets', 'img','Gallery', image.image_url)
     if os.path.exists(image_path):
         os.remove(image_path)
     db.session.delete(image)

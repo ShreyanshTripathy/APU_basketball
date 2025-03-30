@@ -2,7 +2,7 @@
 
 <div class="container mt-5">
     <h1 class="mb-4">Add Contact</h1>
-    
+
     <!-- Form for Adding Contact -->
     <form method="POST" enctype="multipart/form-data" action="{{ url_for('add_contact.add_contact_view') }}">
         <!-- CSRF Token (Optional: Use if Flask-WTF is enabled) -->
@@ -13,47 +13,47 @@
         <!-- Name -->
         <div class="mb-3">
             <label for="name" class="form-label">Name</label>
-            <input 
-                type="text" 
-                class="form-control" 
-                id="name" 
-                name="name" 
-                placeholder="Enter name" 
+            <input
+                type="text"
+                class="form-control"
+                id="name"
+                name="name"
+                placeholder="Enter name"
                 required>
         </div>
 
         <!-- Phone Number -->
-        <div class="mb-3">
-            <label for="number" class="form-label">Phone Number</label>
-            <input 
-                type="tel" 
-                class="form-control" 
-                id="number" 
-                name="number" 
-                placeholder="Enter phone number" 
-                required>
-        </div>
+        <!--<div class="mb-3">-->
+        <!--    <label for="number" class="form-label">Phone Number</label>-->
+        <!--    <input -->
+        <!--        type="tel" -->
+        <!--        class="form-control" -->
+        <!--        id="number" -->
+        <!--        name="number" -->
+        <!--        placeholder="Enter phone number" -->
+        <!--        required>-->
+        <!--</div>-->
 
         <!-- Email -->
-        <div class="mb-3">
-            <label for="email" class="form-label">Email</label>
-            <input 
-                type="email" 
-                class="form-control" 
-                id="email" 
-                name="email" 
-                placeholder="Enter email address" 
-                required>
-        </div>
+        <!--<div class="mb-3">-->
+        <!--    <label for="email" class="form-label">Email</label>-->
+        <!--    <input -->
+        <!--        type="email" -->
+        <!--        class="form-control" -->
+        <!--        id="email" -->
+        <!--        name="email" -->
+        <!--        placeholder="Enter email address" -->
+        <!--        required>-->
+        <!--</div>-->
 
         <!-- Image Upload -->
         <div class="mb-3">
             <label for="picture" class="form-label">Upload Picture</label>
-            <input 
-                type="file" 
-                class="form-control" 
-                id="picture" 
-                name="picture" 
+            <input
+                type="file"
+                class="form-control"
+                id="picture"
+                name="picture"
                 accept="image/*">
         </div>
 

@@ -19,18 +19,18 @@ class Event(db.Model):
     link = db.Column(db.String(255), nullable=True)
     is_league = db.Column(db.Boolean, default=False)
     admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'), nullable=False)
-    
+
     # Relationships
     matches = db.relationship('Match', backref='event', lazy=True)
-    teams = db.relationship('Team', backref='event', lazy=True)
+    teams = db.relationship('Team', backref='event', lazy=True, cascade='all, delete-orphan')
     galleries = db.relationship('GalleryAlbum', backref='event', lazy=True)
 
 
 class CoreMembers(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     Name = db.Column(db.String(100), nullable=False)
-    Number = db.Column(db.String(15), nullable=False)
-    email_id = db.Column(db.String(100), nullable=False)
+    # Number = db.Column(db.String(15), nullable=False)
+    # email_id = db.Column(db.String(100), nullable=False)
     picture = db.Column(db.String(255), nullable=True)
     admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'))
 
@@ -41,8 +41,8 @@ class Team(db.Model):
     event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
 
     members = db.relationship('TeamMembers', backref='team', lazy=True, cascade='all, delete')
-    matches_as_team_a = db.relationship('Match', foreign_keys='Match.team_a_id', backref='team_a', lazy=True)
-    matches_as_team_b = db.relationship('Match', foreign_keys='Match.team_b_id', backref='team_b', lazy=True)
+    matches_as_team_a = db.relationship('Match', foreign_keys='Match.team_a_id', backref='team_a', lazy=True, cascade='all, delete-orphan')
+    matches_as_team_b = db.relationship('Match', foreign_keys='Match.team_b_id', backref='team_b', lazy=True, cascade='all, delete-orphan')
     admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'), nullable=False)
 
 class TeamMembers(db.Model):

@@ -2,8 +2,9 @@ from flask import Blueprint, render_template, flash, redirect, url_for, request,
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, logout_user, current_user, login_required
 from itsdangerous import URLSafeTimedSerializer
+from flask_mail import Message  # Import Flask-Mail's Message class
 from .models import Admin
-from . import db
+from . import db, mail  # Import the mail instance from __init__.py
 
 auth = Blueprint('auth', __name__)
 
@@ -12,8 +13,7 @@ def generate_reset_token(user):
     serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
     return serializer.dumps(user.user_name, salt="password-reset")
 
-# Function to verify the reset token
-def verify_reset_token(token, expiration=600):  # Token expires in 10 minutes
+def verify_reset_token(token, expiration=600):
     serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
     try:
         user_name = serializer.loads(token, salt="password-reset", max_age=expiration)
@@ -83,14 +83,29 @@ def logout():
 @auth.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
     if request.method == 'POST':
-        user_name = request.form.get('user_name')
+        # Get the username (which is the email)
+        user_name = request.form.get('user_name').strip()
+        current_app.logger.info(f"Received username: '{user_name}'")
         user = Admin.query.filter_by(user_name=user_name).first()
 
-        if user:
-            token = generate_reset_token(user)
-            return redirect(url_for('auth.reset_password', token=token))  # Redirect directly
-        else:
+        if not user:
+            current_app.logger.error("No user found with that username.")
             flash("User not found", category='error')
+            return redirect(url_for('auth.forgot_password'))
+
+        token = generate_reset_token(user)
+        reset_url = url_for('auth.reset_password', token=token, _external=True)
+
+        sender = current_app.config.get('MAIL_DEFAULT_SENDER', 'basketballclub@apu.edu.in')
+        subject = "Password Reset Request"
+        recipients = [user.user_name]  # This will be basketballclub@apu.edu.in if that's stored
+        body = f"Hi {user.user_name},\n\nTo reset your password, please click the following link:\n{reset_url}\n\nIf you did not request this, please ignore this email."
+
+        msg = Message(subject=subject, sender=sender, recipients=recipients, body=body)
+        mail.send(msg)
+
+        flash("Password reset link sent to your email!", category='success')
+        return redirect(url_for('auth.login'))
 
     return render_template('forgot_password.html')
 
@@ -98,7 +113,6 @@ def forgot_password():
 @auth.route('/reset-password', methods=['GET', 'POST'])
 def reset_password():
     token = request.args.get('token')
-
     user = verify_reset_token(token)
 
     if not user:

@@ -1,4 +1,5 @@
 {% include 'header.html' %}
+<!-- Full CSS -->
 <style>
   /* Gallery grid styling */
   .img-container {
@@ -40,7 +41,7 @@
     stroke-width: 2;
     fill: none;
   }
-  
+
   /* Modal styling */
   .modal-dialog {
     max-width: 95%;
@@ -52,6 +53,11 @@
     background: transparent;
     border: none;
   }
+
+  .modal-content-team {
+    background: #fff;
+    padding: 0 1rem;
+  }
   .modal-body {
     padding: 0;
     height: calc(90vh - 56px);
@@ -59,7 +65,23 @@
     overflow: hidden;
     position: relative;
   }
-  
+
+  .modal-body-team {
+    padding: 10px 20px;
+    height: calc(90vh - 56px);
+    background: #fff;
+    overflow-y: auto; /* Enables vertical scrolling */
+    position: relative;
+  }
+
+  /* Smooth slide in transition for modals */
+  .modal.fade .modal-dialog {
+    transition: transform 0.3s ease-out;
+    transform: translate(0, -50px);
+  }
+  .modal.fade.show .modal-dialog {
+    transform: translate(0, 0);
+  }
   /* Modal slider styling */
   .modal-slider-container {
     overflow: hidden;
@@ -82,7 +104,7 @@
     height: 100%;
     object-fit: contain;
   }
-  
+
   /* Navigation buttons for modal slider */
   .modal-nav-button {
     position: absolute;
@@ -98,18 +120,24 @@
     cursor: pointer;
     z-index: 1050;
     transition: background 0.3s ease, transform 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform-origin: center center;
   }
+
   .modal-nav-button:hover {
     background: rgba(0, 0, 0, 0.8);
     transform: translateY(-50%) scale(1.1);
   }
+
   .modal-nav-button.left {
     left: 10px;
   }
   .modal-nav-button.right {
     right: 10px;
   }
-  
+
   /* Dots indicators in modal slider */
   .modal-dots {
     position: absolute;
@@ -132,6 +160,118 @@
   .modal-dots .dot.active {
     background: #fff;
   }
+
+  /* "No matches found" row styling */
+  .no-matches {
+    text-align: center;
+    font-weight: bold;
+    color: red;
+  }
+
+  /* Improved Match Fixtures Table Styling for non-admin users */
+  #matchTable {
+    border-collapse: collapse;
+    background: #fff;
+    margin: 20px 0;
+    font-size: 1rem;
+    text-align: center;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  #matchTable th {
+    background: #333;
+    color: #fff;
+    padding: 12px;
+    text-transform: uppercase;
+  }
+
+  #matchTable td {
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+  }
+
+  #matchTable tr:nth-child(even) {
+    background: #f9f9f9;
+  }
+
+  #matchTable tr:hover {
+    background: #f1f1f1;
+    transition: 0.3s;
+  }
+
+  /* CSS for interactive search filtering (fixtures) */
+  #matchTable tbody tr {
+    transition: opacity 0.3s ease;
+    opacity: 1;
+  }
+  .fade-out {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  /* Uniform Team Card Styling */
+  .team-card {
+    min-height: 220px;
+    cursor: pointer;
+    transition: transform 0.5s ease;
+  }
+  .team-card:hover {
+    transform: scale(1.02);
+  }
+  .team-card .card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .team-preview-table {
+    margin-bottom: 0;
+  }
+  .team-preview-more {
+    font-size: 0.9rem;
+    color: #6c757d;
+  }
+  .team-card-container {
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+
+  /* Team Buttons Styles */
+  .team-buttons-container {
+    overflow: hidden;
+    white-space: nowrap;
+    background: #f8f8f8;
+    padding: 10px 0;
+    margin-bottom: 20px;
+  }
+  .team-buttons {
+    display: inline-block;
+    animation: scroll 20s linear infinite;
+  }
+  .team-buttons:hover {
+    animation-play-state: paused;
+  }
+  .team-button {
+    display: inline-block;
+    margin: 0 20px;
+    padding: 10px 20px;
+    background: #007bff;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background 0.3s;
+  }
+  .team-button:hover {
+    background: #0056b3;
+  }
+  @keyframes scroll {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
 </style>
 
 <main class="py-5">
@@ -140,8 +280,8 @@
     <div class="row align-items-center g-4">
       <div class="col-md-5">
         <img src="{{ url_for('static', filename='assets/img/Event/' ~ event.img_url) }}"
-             class="img-fluid w-100 rounded" 
-             style="max-height: 400px; object-fit: cover;" 
+             class="img-fluid w-100 rounded"
+             style="max-height: 400px; object-fit: cover;"
              alt="{{ event.title }}">
       </div>
       <div class="col-md-7">
@@ -155,23 +295,20 @@
           {% endif %}
         </ul>
         <a href="{{ url_for('views.home') }}" class="btn btn-primary mt-3">Back to Home</a>
-        </ul>
-
-        {% if current_user.is_authenticated and current_user.id == event.admin_id %}
-        {% if event.is_league %}
+      {% if current_user.is_authenticated and current_user.id == event.admin_id %}
+      {% if event.is_league %}
         <a href="{{ url_for('Teams.add_new_team', event_id=event.id) }}" class="btn btn-primary mt-3">Add Team</a>
-        {%endif%}
+      {% endif %}
         <div class="mt-3">
             <a href="{{ url_for('add_event.edit_event', event_id=event.id) }}" class="btn btn-warning">Edit Event</a>
             <form action="{{ url_for('add_event.delete_event', event_id=event.id) }}" method="POST" style="display: inline;">
                 <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this event?');">Delete Event</button>
             </form>
         </div>
-        {% endif %}
+      {% endif %}
       </div>
     </div>
 
-    
     <br>
     {% if event.is_league %}
     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -183,11 +320,18 @@
         {% endif %}
     </div>
 
+    <!-- Combined Search Fields for Match Fixtures -->
+    <div class="input-group mb-3">
+      <input type="text" class="form-control" id="matchSearch" placeholder="Search by team name">
+      <input type="date" class="form-control" id="dateSearch" placeholder="Filter by date">
+    </div>
+
     <!-- Existing Matches -->
     <div class="card">
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-striped">
+                <!-- Table for search filtering -->
+                <table class="table table-striped" id="matchTable">
                     <thead>
                         <tr>
                             <th>Team A</th>
@@ -196,8 +340,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for match in event.matches %}
-                        <tr>
+                        {% for match in matches %}
+                        <tr data-match-date="{{ match.date_time.strftime('%Y-%m-%d') }}">
                             <td>
                                 <div class="{% if match.team_a_score is not none and match.team_b_score is not none %}{% if match.team_a_score > match.team_b_score %}bg-success text-white{% elif match.team_a_score < match.team_b_score %}bg-danger text-white{% endif %}{% endif %} p-2 rounded">
                                     <div class="fw-bold">{{ match.team_a.team_name }}</div>
@@ -210,7 +354,7 @@
                                             {% endif %}
                                         </span>
                                         {% if current_user.is_authenticated and current_user.id == event.admin_id %}
-                                        <button type="button" class="btn btn-sm btn-outline-{% if match.team_a_score is not none and match.team_b_score is not none %}{% if match.team_a_score > match.team_b_score %}light{% elif match.team_a_score < match.team_b_score %}light{% else %}primary{% endif %}{% else %}primary{% endif %} ms-2" 
+                                        <button type="button" class="btn btn-sm btn-outline-{% if match.team_a_score is not none and match.team_b_score is not none %}{% if match.team_a_score > match.team_b_score %}light{% elif match.team_a_score < match.team_b_score %}light{% else %}primary{% endif %}{% else %}primary{% endif %} ms-2"
                                                 onclick="updateScore({{ match.id }}, 'a', {{ match.team_a_score or 'null' }})">
                                             Update Score
                                         </button>
@@ -230,7 +374,7 @@
                                             {% endif %}
                                         </span>
                                         {% if current_user.is_authenticated and current_user.id == event.admin_id %}
-                                        <button type="button" class="btn btn-sm btn-outline-{% if match.team_a_score is not none and match.team_b_score is not none %}{% if match.team_b_score > match.team_a_score %}light{% elif match.team_b_score < match.team_a_score %}light{% else %}primary{% endif %}{% else %}primary{% endif %} ms-2" 
+                                        <button type="button" class="btn btn-sm btn-outline-{% if match.team_b_score is not none and match.team_a_score is not none %}{% if match.team_b_score > match.team_a_score %}light{% elif match.team_b_score < match.team_a_score %}light{% else %}primary{% endif %}{% else %}primary{% endif %} ms-2"
                                                 onclick="updateScore({{ match.id }}, 'b', {{ match.team_b_score or 'null' }})">
                                             Update Score
                                         </button>
@@ -239,7 +383,7 @@
                                 </div>
                             </td>
                             <td>
-                                {{ match.date_time.strftime('%Y-%m-%d %H:%M') }}
+                                {{ match.date_time.strftime('%B %d, %Y %H:%M') }}
                                 {% if current_user.is_authenticated and current_user.id == event.admin_id %}
                                 <div class="mt-2">
                                     <a href="{{ url_for('views.edit_match', match_id=match.id) }}" class="btn btn-warning btn-sm">Edit Match</a>
@@ -251,6 +395,10 @@
                             </td>
                         </tr>
                         {% endfor %}
+                        <!-- Hidden row if no matches are found -->
+                        <tr id="noMatchesRow" style="display: none;">
+                          <td colspan="3" class="no-matches">No matches found</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -258,56 +406,65 @@
     </div>
 
     <!-- Updated Score Update Modal -->
-<div class="modal fade" id="scoreUpdateModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-0 shadow">
-      <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title">Update Score</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form id="scoreUpdateForm" class="p-4">
-          <input type="hidden" id="matchId" name="match_id">
-          <input type="hidden" id="teamType" name="team">
-          <div class="mb-3">
-            <label for="score" class="form-label">Score</label>
-            <input type="number" class="form-control form-control-lg" id="score" name="score" placeholder="Enter new score" required min="0">
+    <div class="modal fade" id="scoreUpdateModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title">Update Score</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="text-end">
-            <button type="submit" class="btn btn-success">Update Score</button>
+          <div class="modal-body">
+            <form id="scoreUpdateForm" class="p-4">
+              <input type="hidden" id="matchId" name="match_id">
+              <input type="hidden" id="teamType" name="team">
+              <div class="mb-3">
+                <label for="score" class="form-label">Score</label>
+                <input type="number" class="form-control form-control-lg" id="score" name="score" placeholder="Enter new score" required min="0">
+              </div>
+              <div class="text-end">
+                <button type="submit" class="btn btn-success">Update Score</button>
+              </div>
+            </form>
           </div>
-        </form>
+        </div>
       </div>
     </div>
-  </div>
-</div>
-
 
     <br>
-    
+
+    <!-- All Teams Section with Team Buttons and Team Search -->
     <div class="teams">
       <h3>All Teams</h3>
-      <div class="row">
+      <!-- Team buttons (single loop) -->
+      <div class="team-buttons-container">
+        <div class="team-buttons">
           {% for team_name, team_info in team.items() %}
-              <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                  <div class="border p-3 rounded shadow-sm">
-                      <!-- Team Name -->
-                      <h5 class="fw-bold mb-2">{{ team_name }}</h5>
-  
-                      <!-- Team Captain Name -->
-                      <p class="text-muted mb-3">Captain: {{ team_info.captain }}</p>
-  
-                      <div class="">
-                          <table class="table table-sm">
+             <a href="#" data-bs-toggle="modal" data-bs-target="#teamModal-{{ team_info.team_id }}" class="team-button">{{ team_name }}</a>
+          {% endfor %}
+        </div>
+      </div>
+      <!-- Optional: Team search field -->
+      <div class="mb-3">
+          <input type="text" id="teamSearch" class="form-control" placeholder="Search teams by name">
+      </div>
+      <div class="row" id="teamCards">
+          {% for team_name, team_info in team.items() %}
+              <div class="col-lg-3 col-md-4 col-sm-6 mb-4 team-card-container">
+                  <!-- Team card preview. Clicking opens the modal for full team details -->
+                  <div class="card team-card h-100" data-bs-toggle="modal" data-bs-target="#teamModal-{{ team_info.team_id }}">
+                      <div class="card-body">
+                          <h5 class="card-title fw-bold">{{ team_name }}</h5>
+                          <p class="card-text text-muted">Captain: {{ team_info.captain }}</p>
+                          <table class="table table-sm team-preview-table">
                               <thead>
                                   <tr>
                                       <th>Name</th>
                                       <th>Level</th>
-                                      <th>Sex</th>
+                                      <th>Gender</th>
                                   </tr>
                               </thead>
                               <tbody>
-                                  {% for player in team_info.members %}
+                                  {% for player in team_info.members[:3] %}
                                   <tr>
                                       <td>{{ player[0] }}</td>
                                       <td>{{ player[1] }}</td>
@@ -316,32 +473,62 @@
                                   {% endfor %}
                               </tbody>
                           </table>
+                          {% if team_info.members|length > 3 %}
+                          <p class="team-preview-more">...and {{ team_info.members|length - 3 }} more</p>
+                          {% endif %}
                       </div>
-  
-                      <!-- Edit and Delete Buttons (Admin Only) -->
-                      <!-- Edit and Delete Buttons (Admin Only) -->
                       {% if current_user.is_authenticated and current_user.id == 1 %}
-                      <div class="mt-2">
-                          <a href="{{ url_for('Teams.edit_team', team_id=team_info.team_id) }}" 
-                            class="btn btn-warning btn-sm">Edit Team</a>
-                          <form action="{{ url_for('Teams.delete_team', team_id=team_info.team_id) }}" 
-                                method="POST" style="display: inline;">
-                              <button type="submit" class="btn btn-danger btn-sm" 
-                                      onclick="return confirm('Are you sure you want to delete this team?');">
+                      <div class="card-footer bg-transparent border-0">
+                          <a href="{{ url_for('Teams.edit_team', team_id=team_info.team_id) }}" class="btn btn-warning btn-sm">Edit Team</a>
+                          <form action="{{ url_for('Teams.delete_team', team_id=team_info.team_id) }}" method="POST" style="display: inline;">
+                              <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this team?');">
                                   Delete Team
                               </button>
                           </form>
                       </div>
                       {% endif %}
+                  </div>
 
-                      
+                  <!-- Modal for Full Team Details with Match Timings -->
+                  <div class="modal fade" id="teamModal-{{ team_info.team_id }}" tabindex="-1" aria-hidden="true">
+                      <div class="modal-dialog modal-dialog-centered modal-lg">
+                          <div class="modal-content modal-content-team">
+                              <div class="modal-header">
+                                  <h5 class="modal-title">{{ team_name }} - Full Team Details</h5>
+                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body-team">
+                                  <p class="text-muted">Captain: {{ team_info.captain }}</p>
+                                  <table class="table table-bordered">
+                                      <thead>
+                                          <tr>
+                                              <th>Name</th>
+                                              <th>Level</th>
+                                              <th>Gender</th>
+                                          </tr>
+                                      </thead>
+                                      <tbody>
+                                          {% for player in team_info.members %}
+                                          <tr>
+                                              <td>{{ player[0] }}</td>
+                                              <td>{{ player[1] }}</td>
+                                              <td>{{ player[2] }}</td>
+                                          </tr>
+                                          {% endfor %}
+                                      </tbody>
+                                  </table>
+                              </div>
+                              <div class="modal-footer">
+                                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                              </div>
+                          </div>
+                      </div>
                   </div>
               </div>
           {% endfor %}
       </div>
-  </div>
-  {% endif %}
-    
+    </div>
+    {% endif %}
 
     <!-- Event Gallery -->
     {% if gallery_images %}
@@ -351,8 +538,8 @@
         {% for image in gallery_images %}
         <div class="col-md-3 mb-4">
           <div class="img-container">
-            <img src="{{ url_for('static', filename='assets/img/Gallery/' ~ image.image_url) }}" 
-                 class="gallery-img" 
+            <img src="{{ url_for('static', filename='assets/img/Gallery/' ~ image.image_url) }}"
+                 class="gallery-img"
                  alt=""
                  onclick="openModal({{ loop.index0 }})">
             <div class="img-overlay" onclick="enlargeImage('{{ url_for('static', filename='assets/img/Gallery/' ~ image.image_url) }}', {{ loop.index0 }})">
@@ -367,7 +554,7 @@
       </div>
     </div>
     {% endif %}
-    
+
   </div>
 </main>
 
@@ -376,12 +563,12 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <!-- Close button -->
-      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" 
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
         style="position: absolute; top: 20px; right: 20px; z-index: 1051; filter: invert(1);"></button>
       <!-- Navigation buttons -->
       <button id="modalPrev" class="modal-nav-button left" aria-label="Previous">&lsaquo;</button>
       <button id="modalNext" class="modal-nav-button right" aria-label="Next">&rsaquo;</button>
-      
+
       <div class="modal-body p-0">
         <div id="modalSliderContainer" class="modal-slider-container">
           <div id="modalSlider" class="modal-slider">
@@ -395,31 +582,31 @@
   </div>
 </div>
 
+<!-- Full JavaScript -->
 <script>
-  // Build gallery images array from Jinja
+  /* Gallery and Modal Slider Functions */
   const galleryImagesArray = [
     {% for image in gallery_images %}
-      "{{ url_for('static', filename='assets/img/Gallery/' ~ image.image_url) }}"{{ "," if not loop.last }}
+      "{{ url_for('static', filename='assets/img/Gallery/' ~ image.image_url) }}",
     {% endfor %}
   ];
-  const totalSlides = galleryImagesArray.length;
-  let currentIndex = 0; // Index of the currently displayed image (0-indexed in galleryImagesArray)
-  let slider;         // Will hold the slider element (the inner div)
-  
-  // Build the modal slider with clones for infinite sliding
+  let currentIndex = 0;
+  let slider;
+  let isAnimating = false; // Flag to prevent overlapping transitions
+
   function buildModalSlider() {
     const sliderContainer = document.getElementById("modalSlider");
     sliderContainer.innerHTML = "";
-    
+
     // Clone the last image and add as the first slide
     const cloneLast = document.createElement("div");
     cloneLast.classList.add("modal-slide");
     const imgCloneLast = document.createElement("img");
-    imgCloneLast.src = galleryImagesArray[totalSlides - 1];
+    imgCloneLast.src = galleryImagesArray[galleryImagesArray.length - 1];
     cloneLast.appendChild(imgCloneLast);
     sliderContainer.appendChild(cloneLast);
-    
-    // Create a slide for each image in the gallery
+
+    // Create a slide for each image
     galleryImagesArray.forEach(src => {
       const slide = document.createElement("div");
       slide.classList.add("modal-slide");
@@ -428,7 +615,7 @@
       slide.appendChild(img);
       sliderContainer.appendChild(slide);
     });
-    
+
     // Clone the first image and add as the last slide
     const cloneFirst = document.createElement("div");
     cloneFirst.classList.add("modal-slide");
@@ -436,16 +623,13 @@
     imgCloneFirst.src = galleryImagesArray[0];
     cloneFirst.appendChild(imgCloneFirst);
     sliderContainer.appendChild(cloneFirst);
-    
+
     slider = sliderContainer;
-    
-    // Set initial currentIndex to 1 (the first real slide)
     currentIndex = 1;
     updateSliderPosition(false);
     buildDots();
   }
-  
-  // Update slider position via CSS transform
+
   function updateSliderPosition(animate = true) {
     if (!animate) {
       slider.style.transition = "none";
@@ -454,73 +638,75 @@
     }
     slider.style.transform = `translateX(-${currentIndex * 100}%)`;
   }
-  
-  // Build dots indicators based on total slides (excluding clones)
+
   function buildDots() {
     const dotsContainer = document.getElementById("modalDots");
     dotsContainer.innerHTML = "";
-    for (let i = 0; i < totalSlides; i++) {
+    for (let i = 0; i < galleryImagesArray.length; i++) {
       const dot = document.createElement("span");
       dot.classList.add("dot");
       if (i === currentIndex - 1) {
         dot.classList.add("active");
       }
       dot.addEventListener("click", () => {
+        if (isAnimating) return;
         goToSlide(i + 1);
       });
       dotsContainer.appendChild(dot);
     }
   }
-  
-  // Update active dot indicator
+
   function updateDots() {
     const dots = document.querySelectorAll("#modalDots .dot");
     dots.forEach((dot, i) => {
       dot.classList.toggle("active", i === currentIndex - 1);
     });
   }
-  
-  // Go to a specific slide (real slides are indexed 1 to totalSlides)
+
   function goToSlide(slideNumber) {
+    if (isAnimating) return;
     currentIndex = slideNumber;
     updateSliderPosition();
     updateDots();
   }
-  
-  // Navigate to next slide with infinite loop handling
+
   function nextSlide() {
+    if (isAnimating) return; // Prevent if already transitioning
+    isAnimating = true;
     currentIndex++;
     updateSliderPosition();
     updateDots();
     slider.addEventListener("transitionend", function handler() {
       slider.removeEventListener("transitionend", handler);
-      if (currentIndex === totalSlides + 1) { // At clone of first slide
+      if (currentIndex === galleryImagesArray.length + 1) {
         currentIndex = 1;
         updateSliderPosition(false);
         updateDots();
       }
-    });
+      isAnimating = false;
+    }, { once: true });
   }
-  
-  // Navigate to previous slide with infinite loop handling
+
   function prevSlide() {
+    if (isAnimating) return; // Prevent if already transitioning
+    isAnimating = true;
     currentIndex--;
     updateSliderPosition();
     updateDots();
     slider.addEventListener("transitionend", function handler() {
       slider.removeEventListener("transitionend", handler);
-      if (currentIndex === 0) { // At clone of last slide
-        currentIndex = totalSlides;
+      if (currentIndex === 0) {
+        currentIndex = galleryImagesArray.length;
         updateSliderPosition(false);
         updateDots();
       }
-    });
+      isAnimating = false;
+    }, { once: true });
   }
-  
-  // Open the modal and build the slider
+
   function openModal(index) {
     buildModalSlider();
-    // Set currentIndex to index+1 since first slide is a clone
+    // Adjust currentIndex because the first slide is a clone
     currentIndex = index + 1;
     updateSliderPosition(false);
     updateDots();
@@ -528,20 +714,96 @@
     const modal = new bootstrap.Modal(modalEl);
     modal.show();
   }
-  
-  // Bridge function: enlargeImage calls openModal.
+
   function enlargeImage(src, index) {
     openModal(index);
   }
-  
-  // Attach event listeners to modal navigation buttons
+
   document.getElementById("modalNext").addEventListener("click", nextSlide);
   document.getElementById("modalPrev").addEventListener("click", prevSlide);
-</script>
 
-{% block scripts %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
+  /* Interactive Search Filtering for Match Fixtures using Combined Search Fields */
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('matchSearch');
+    const dateInput = document.getElementById('dateSearch');
+    const rows = document.querySelectorAll('#matchTable tbody tr');
+    const noMatchesRow = document.getElementById('noMatchesRow');
+
+    function filterMatches() {
+      const textFilter = searchInput.value.trim();
+      const dateFilter = dateInput.value.trim(); // Expected format: YYYY-MM-DD
+
+      let visibleCount = 0;
+      rows.forEach(row => {
+        // Skip the "No matches found" row
+        if (row.id === 'noMatchesRow') return;
+
+        // Get text from the relevant cells
+        const teamA = row.cells[0]?.textContent || "";
+        const teamB = row.cells[1]?.textContent || "";
+        let textMatch = true;
+        if (textFilter) {
+          const pattern = new RegExp("\\b" + textFilter, "i");
+          textMatch = pattern.test(teamA) || pattern.test(teamB);
+        }
+
+        // Get the match date from the data attribute
+        const rowDate = row.getAttribute('data-match-date');
+        let dateMatch = true;
+        if (dateFilter) {
+          dateMatch = rowDate === dateFilter;
+        }
+
+        if (textMatch && dateMatch) {
+          row.style.display = '';
+          setTimeout(() => row.classList.remove('fade-out'), 10);
+          visibleCount++;
+        } else {
+          row.classList.add('fade-out');
+          setTimeout(() => {
+            row.style.display = 'none';
+          }, 500);
+        }
+      });
+
+      // Show the "No matches found" row if no rows are visible
+      noMatchesRow.style.display = visibleCount === 0 ? '' : 'none';
+    }
+
+    searchInput.addEventListener('input', filterMatches);
+    dateInput.addEventListener('change', filterMatches);
+
+    /* Team Search Filtering for All Teams Section (similar to fixtures search, without date field) */
+    const teamSearchInput = document.getElementById('teamSearch');
+    teamSearchInput.addEventListener('input', function() {
+      const filter = this.value.trim();
+      let visibleCount = 0;
+      const teamCards = document.querySelectorAll('.team-card-container');
+      const pattern = new RegExp("\\b" + filter, "i");
+      teamCards.forEach(card => {
+        const teamName = card.querySelector('.card-title').textContent;
+        if (!filter || pattern.test(teamName)) {
+          card.style.display = '';
+          setTimeout(() => card.classList.remove('fade-out'), 10);
+          visibleCount++;
+        } else {
+          card.classList.add('fade-out');
+          setTimeout(() => {
+            card.style.display = 'none';
+          }, 500);
+        }
+      });
+    });
+
+    // Check if team buttons need to scroll; if not, disable the animation.
+    const teamButtons = document.querySelector('.team-buttons');
+    const wrapper = document.querySelector('.team-buttons-container');
+    if(teamButtons.scrollWidth <= wrapper.clientWidth) {
+         teamButtons.style.animation = 'none';
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', function() {
     // Score update functionality
     const scoreModal = new bootstrap.Modal(document.getElementById('scoreUpdateModal'));
     const scoreForm = document.getElementById('scoreUpdateForm');
@@ -577,7 +839,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Update the score display
                 const scoreDisplay = document.querySelector(`.score-display-${team}-${matchId}`);
                 scoreDisplay.textContent = `Score: ${score}`;
-                
+
                 // Refresh the page to update the highlighting
                 location.reload();
             } else {
@@ -589,8 +851,10 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('Error updating score');
         });
     });
-});
+  });
 </script>
+
+{% block scripts %}
 {% endblock %}
 
 {% include 'footer.html' %}

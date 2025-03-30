@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, flash, redirect, url_for, request, abort
+from flask import Blueprint, render_template, flash, redirect, url_for, request, abort,current_app
 from werkzeug.utils import secure_filename
 from flask_login import current_user, login_required
 import os
@@ -23,7 +23,7 @@ def add_new_event():
     if request.method == 'POST':
         title = request.form.get('title')
         description = request.form.get('description')
-        link = request.form.get('link') 
+        link = request.form.get('link')
         start_date_str = request.form.get('start_date')
         end_date_str = request.form.get('end_date')
         image = request.files.get('image')
@@ -32,7 +32,15 @@ def add_new_event():
 
         if not title or not description or not image:
             flash('Please fill in all fields!', category='error')
-            return redirect(url_for('add_event.add_new_event'))
+            return render_template(
+                    "add_event.html",
+                    title=title,
+                    description=description,
+                    link=link,
+                    start_date=start_date_str,
+                    end_date=end_date_str,
+                    is_league=request.form.get('is_league')
+                )
         if not allowed_file(image.filename):
             flash('Invalid image format! Allowed formats: png, jpg, jpeg.', category='error')
             return redirect(url_for('add_event.add_new_event'))
@@ -49,7 +57,7 @@ def add_new_event():
             return redirect(url_for('add_event.add_new_event'))
 
         image_filename = secure_filename(image.filename)
-        image_path = os.path.join('website', 'static', 'assets', 'img', 'Event', image_filename)
+        image_path = os.path.join(current_app.root_path, 'static', 'assets', 'img', 'Event', image_filename)
         os.makedirs(os.path.dirname(image_path), exist_ok=True)
 
         try:
@@ -103,7 +111,7 @@ def edit_event(event_id):
         except ValueError:
             flash("Invalid date format.", category='error')
             return redirect(url_for('add_event.edit_event', event_id=event_id))
-        
+
         if start_date and end_date and start_date > end_date:
             flash("Start date cannot be after end date.", category='error')
             return redirect(url_for('add_event.edit_event', event_id=event_id))
@@ -119,7 +127,7 @@ def edit_event(event_id):
 
         if image and allowed_file(image.filename):
             image_filename = secure_filename(image.filename)
-            image_path = os.path.join('website', 'static', 'assets', 'img', 'Event', image_filename)
+            image_path = os.path.join(current_app.root_path, 'static', 'assets', 'img', 'Event', image_filename)
             os.makedirs(os.path.dirname(image_path), exist_ok=True)
             image.save(image_path)
             event.img_url = image_filename
@@ -137,16 +145,16 @@ def delete_event(event_id):
     if current_user.id != 1:
         flash("You do not have permission to delete events.", category='error')
         return redirect(url_for('views.home'))
-        
+
     event = Event.query.get_or_404(event_id)
     if len(event.galleries)>0:
         flash("This event containas images, delete the images from galleries to delete the event")
         return event_page(event_id)
-    
-    image_path = os.path.join('website', 'static', 'assets', 'img', 'Event', event.img_url)
+
+    image_path = os.path.join(current_app.root_path, 'static', 'assets', 'img', 'Event', event.img_url)
     if os.path.exists(image_path):
         os.remove(image_path)
-            
+
     db.session.delete(event)
     db.session.commit()
     flash("Event deleted successfully.", category='success')
@@ -165,14 +173,25 @@ def event_page(event_id):
     teams = Team.query.filter_by(event_id=event_id).all()
     team_data = {
         t.team_name: {
-            "team_id": t.id,  # Add team_id here
+            "team_id": t.id,
             "captain": t.captain_name,
-            "members": [(m.name, m.level, m.gender) for m in t.members]  
+            "members": [(m.name, m.level, m.gender) for m in t.members]
         } for t in teams
     }
 
-    return render_template('event_page.html', event=event, gallery_images=gallery_images, team=team_data)
+    # Sort matches:
+    # Define upcoming matches as those without both scores (i.e. not yet played)
+    # Completed matches have both scores entered.
+    matches = event.matches
+    upcoming_matches = [m for m in matches if m.team_a_score is None or m.team_b_score is None]
+    completed_matches = [m for m in matches if m.team_a_score is not None and m.team_b_score is not None]
 
+    # Sort upcoming matches by date_time ascending (earliest first)
+    upcoming_matches.sort(key=lambda m: m.date_time)
+    # Optionally, sort completed matches by date_time ascending as well
+    completed_matches.sort(key=lambda m: m.date_time)
 
+    # Combine: upcoming fixtures on top, then completed ones at the bottom
+    sorted_matches = upcoming_matches + completed_matches
 
-
+    return render_template('event_page.html', event=event, gallery_images=gallery_images, team=team_data, matches=sorted_matches)

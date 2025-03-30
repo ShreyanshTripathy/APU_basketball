@@ -1,10 +1,12 @@
 from flask import Flask, session, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user
+from flask_mail import Mail  # Import Flask-Mail
 import os
 
 db = SQLAlchemy()
 login_manager = LoginManager()
+mail = Mail()  # Create an instance of Mail
 
 DB_NAME = 'basketball_db.sqlite3'
 
@@ -13,8 +15,20 @@ def create_app():
     app.debug = True
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default-secret-key')
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
-    
+
+    # Configure Flask-Mail settings
+    app.config.update(
+        MAIL_SERVER='smtp.gmail.com',
+        MAIL_PORT=587,
+        MAIL_USE_TLS=True,
+        MAIL_USERNAME='basketballclub@apu.edu.in',       # Sender email
+        MAIL_PASSWORD='Apu@2020',                         # Sender email password
+        MAIL_DEFAULT_SENDER='basketballclub@apu.edu.in'   # Default sender address
+    )
+
+
     db.init_app(app)
+    mail.init_app(app)  # Initialize mail with the app
 
     # Import and register blueprints
     from .views import views
@@ -22,7 +36,7 @@ def create_app():
     from .add_event import add_event
     from .add_contact import add_contact
     from .team import Teams
-    from .gallery import gallery  
+    from .gallery import gallery
     from .admin_homepage import admin_homepage
 
     app.register_blueprint(views)
@@ -62,5 +76,5 @@ def create_app():
 
 @login_manager.user_loader
 def load_user(user_id):
-    from .models import Admin  
+    from .models import Admin
     return Admin.query.get(int(user_id))

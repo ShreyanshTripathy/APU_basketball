@@ -1,4 +1,9 @@
 {% include 'header.html' %}
+<style>
+    .rounded-circle {
+    object-fit: cover;
+}
+</style>
 
 <div class="container marketing">
     <!-- Three columns of text below the carousel -->
@@ -6,7 +11,12 @@
         {% for member in members %}
         <div class="col-lg-4 text-center mb-5">
             {% if member.picture %}
-            <img src="{{ url_for('static', filename='assets/img/Contact/' + member.picture) }}" class="rounded-circle" width="140" height="140" alt="{{ member.Name }}">
+            <img src="{{ url_for('static', filename='assets/img/Contact/' + member.picture) }}"
+             class="rounded-circle"
+             width="140"
+             height="140"
+             style="object-fit: cover;"
+             alt="{{ member.Name }}">
 
             {% else %}
             <svg class="bd-placeholder-img rounded-circle" width="140" height="140" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder" preserveAspectRatio="xMidYMid slice" focusable="false">
@@ -15,11 +25,11 @@
             </svg>
             {% endif %}
             <h2 class="fw-normal">{{ member.Name }}</h2>
-            <p>Member of Basketball Committee{{member.picture}}</p>
-            <p>Number: {{ member.Number }}</p>
-            <p>
-                <a class="btn btn-secondary" href="mailto:{{ member.email_id }}">EmailId »</a>
-            </p>
+            <p>Member of Basketball Committee</p>
+            <!--<p>Number: {{ member.Number }}</p>-->
+            <!--<p>-->
+            <!--    <a class="btn btn-secondary" href="mailto:{{ member.email_id }}">EmailId »</a>-->
+            <!--</p>-->
             {% if current_user.is_authenticated and current_user.id == 1 %}
             <div class="d-flex justify-content-center mt-3" style="gap: 10px;">
                 <a href="{{ url_for('add_contact.edit_contact', contact_id=member.id) }}" class="btn btn-primary">

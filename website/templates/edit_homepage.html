@@ -12,7 +12,7 @@
             {% endfor %}
         {% endif %}
     {% endwith %}
-    
+
     <form method="POST" enctype="multipart/form-data">
         <div class="mb-3">
             <label for="header_title" class="form-label">Header Title</label>
@@ -29,7 +29,7 @@
         </div>
         <div class="mb-3 text-right">
             <label class="form-label">Current Header Image Preview</label><br>
-            <img src="{{ url_for('static', filename='assets/img/' ~ home_content.header_image) }}" 
+            <img src="{{ url_for('static', filename='assets/img/Home/' ~ home_content.header_image) }}"
                  class="img-fluid" alt="Current Header Image" style="max-height: 200px;">
         </div>
         <div class="mb-3">

@@ -1,20 +1,16 @@
 {%include 'header.html'%}
 
-
 <section class="">
-
   <div class="container-fluid px-0">
     <div class="row g-0 text-center vh-100">
-
       <div class="align-self-center">
         <h3 align="center">User Login</h3>
-          <br>
+        <br>
         <div class="container">
-        <form action="" method="POST">
-
+          <form action="" method="POST">
             <div class="input-group mb-3">
-                <label for="admin_user_name" class="input-group-text">User Name</label>
-                <input type="text"
+              <label for="admin_user_name" class="input-group-text">User Name</label>
+              <input type="text"
                 class="form-control"
                 id="admin_user_name"
                 name="user_name"
@@ -23,8 +19,8 @@
             </div>
 
             <div class="input-group mb-3">
-                <label for="admin_password" class="input-group-text">Password</label>
-                <input type="password"
+              <label for="admin_password" class="input-group-text">Password</label>
+              <input type="password"
                 class="form-control"
                 id="admin_password"
                 name="password"
@@ -34,10 +30,10 @@
             <br>
             <button type="submit" class="btn btn-primary">Enter</button>
             <a href="/auth/sign-up"><button type="button" class="btn btn-success">Register</button></a>
-
-        </form>
-      </div>
-
+            <br><br>
+            <a href="/auth/forgot-password" class="text-danger">Forgot Password?</a>  <!-- New Reset Link -->
+          </form>
+        </div>
       </div>
     </div>
   </div>

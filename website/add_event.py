@@ -195,3 +195,13 @@ def event_page(event_id):
     sorted_matches = upcoming_matches + completed_matches
 
     return render_template('event_page.html', event=event, gallery_images=gallery_images, team=team_data, matches=sorted_matches)
+
+
+
+
+
+
+
+
+
+
